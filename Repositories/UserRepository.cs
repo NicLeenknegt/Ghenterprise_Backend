@@ -23,7 +23,7 @@ namespace Ghenterprise_Backend.Repositories
             ssh = new SSH();
         }
 
-        public int registerUser(User user)
+        public int registerUser(RegistrationUser user)
         {
             return ssh.executeQuery<int>(() => {
                 int rowsAffected = 0;
@@ -37,6 +37,7 @@ namespace Ghenterprise_Backend.Repositories
                     {
                         rowsAffected = command.ExecuteNonQuery();
                     }
+                    
                 }
 
                 return rowsAffected;
@@ -49,8 +50,6 @@ namespace Ghenterprise_Backend.Repositories
             System.Diagnostics.Debug.WriteLine(email);
             return ssh.executeQuery<Boolean>(() =>
             {
-                System.Diagnostics.Debug.WriteLine(email);
-                System.Diagnostics.Debug.WriteLine("-_-_-_-_-_-");
                 var query = String.Format("SELECT * FROM user WHERE email = '{0}' LIMIT 1;", email);
                 Boolean emailExists = false;
 
@@ -67,6 +66,33 @@ namespace Ghenterprise_Backend.Repositories
                     }
                 }
                 return emailExists;
+            });
+        }
+
+        public String login(LoginUser user)
+        {
+            return ssh.executeQuery<String>(() => 
+            {
+                var query = String.Format("SELECT password FROM user WHERE email = '{0}' LIMIT 1;", user.email);
+                String response = "Password invalid";
+
+                using(MySqlConnection conn = new MySqlConnection(connString))
+                {
+                    conn.Open();
+
+                    using(MySqlCommand command = new MySqlCommand(query, conn))
+                    {
+                        using(MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while(reader.Read() == true)
+                            {
+                                response = (reader.GetString(0) == user.password)? "Password valid":"Password invalid";
+                            }
+                        }
+                    }
+                    conn.Close();
+                }
+                return response;
             });
         }
     }

@@ -29,8 +29,9 @@ namespace Ghenterprise_Backend.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, 0);
         }
 
+        [Route("api/User/register")]
         [HttpPost]
-        public HttpResponseMessage Register([FromBody] User user)
+        public HttpResponseMessage Register([FromBody] RegistrationUser user)
         {
             int affectedRows = 0;
 
@@ -110,9 +111,8 @@ namespace Ghenterprise_Backend.Controllers
 
         [Route("api/User/check-email")]
         [HttpGet]
-        public HttpResponseMessage checkEmail([FromBody] User user)
+        public HttpResponseMessage checkEmail([FromBody] RegistrationUser user)
         {
-            System.Diagnostics.Debug.WriteLine(user.email);
             Response res = new Response
             {
                 message = "email doesn't exist"
@@ -126,6 +126,30 @@ namespace Ghenterprise_Backend.Controllers
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
 
+            return Request.CreateResponse(HttpStatusCode.OK, res);
+        }
+
+        [Route("api/User/login")]
+        [HttpGet]
+        public HttpResponseMessage login([FromBody] LoginUser user)
+        {
+            if(!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
+            }
+
+            Response res = new Response
+            {
+                message = "Password invalid"
+            };
+            try
+            {
+                res.message = userRepo.login(user);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
             return Request.CreateResponse(HttpStatusCode.OK, res);
         }
     }

@@ -30,20 +30,31 @@ namespace Ghenterprise_Backend.Repositories
         {
             T t = default(T);
 
-            using (SshClient client = new SshClient(conn))
+            try
             {
-                client.Connect();
-                ForwardedPortLocal port = new ForwardedPortLocal("127.0.0.1", 22, "13.94.138.165", 3306);
 
-                client.AddForwardedPort(port);
-                port.Start();
+                using (SshClient client = new SshClient(conn))
+                {
+                    client.Connect();
+                    ForwardedPortLocal port = new ForwardedPortLocal("127.0.0.1", 22, "13.94.138.165", 3306);
 
-                t = executeMySqlQuery();
+                    client.AddForwardedPort(port);
+                    port.Start();
 
-                client.Disconnect();
+                    t = executeMySqlQuery();
+
+                    client.Disconnect();
+                }
+
+                return t;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("ERROR caught in SSH.cs");
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                throw ex;
             }
 
-            return t;
         }
     }
 }
