@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Web;
 using Renci.SshNet;
@@ -15,11 +17,14 @@ namespace Ghenterprise_Backend.Repositories
 
         public SSH()
         {
+            string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+            Debug.WriteLine(folder);
+
             conn = new ConnectionInfo("ghenterpriseapp.westeurope.cloudapp.azure.com", 22, "jari",
                     new AuthenticationMethod[] {
                         new PrivateKeyAuthenticationMethod("jari", new []
                         {
-                            new PrivateKeyFile(@"D:\school\18-19\Sem_1\Mobile_App_voor_Windows\Server_Keys\keys\private", "pazaak")
+                            new PrivateKeyFile(@"C:\ssh\Ghenterprise\private", "pazaak")
                         })
                     }
                 );
