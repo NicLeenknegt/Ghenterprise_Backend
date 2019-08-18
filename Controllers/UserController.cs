@@ -134,7 +134,7 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [Route("api/User/login")]
-        [HttpGet]
+        [HttpPost]
         public HttpResponseMessage login([FromBody] LoginUser user)
         {
             if(!ModelState.IsValid)
@@ -152,9 +152,13 @@ namespace Ghenterprise_Backend.Controllers
             }
             catch (Exception ex)
             {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+                var errorReq = Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+                errorReq.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                return errorReq;
             }
-            return Request.CreateResponse(HttpStatusCode.OK, res);
+            var req = Request.CreateResponse(HttpStatusCode.OK, res);
+            req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            return req;
         }
     }
 }
