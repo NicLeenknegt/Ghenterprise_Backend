@@ -11,6 +11,7 @@ using Renci.SshNet;
 using System.ComponentModel.DataAnnotations;
 using Ghenterprise_Backend.Models;
 using Ghenterprise_Backend.Repositories;
+using System.Net.Http.Headers;
 
 namespace Ghenterprise_Backend.Controllers
 {
@@ -111,7 +112,7 @@ namespace Ghenterprise_Backend.Controllers
 
         [Route("api/User/check-email")]
         [HttpGet]
-        public HttpResponseMessage checkEmail([FromBody] RegistrationUser user)
+        public HttpResponseMessage checkEmail([FromUri] String email)
         {
             Response res = new Response
             {
@@ -119,14 +120,17 @@ namespace Ghenterprise_Backend.Controllers
             };
             try
             {
-                res.message = (userRepo.checkEmail(user.email)) ? "email exists" : "email doesn't exist";
+                res.message = (userRepo.checkEmail(email)) ? "email exists" : "email doesn't exist";
             }
             catch (Exception ex)
             {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+                var errorReq = Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+                errorReq.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                return errorReq;
             }
-
-            return Request.CreateResponse(HttpStatusCode.OK, res);
+            var req = Request.CreateResponse(HttpStatusCode.OK, res);
+            req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            return req;
         }
 
         [Route("api/User/login")]
