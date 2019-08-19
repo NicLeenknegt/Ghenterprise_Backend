@@ -10,6 +10,9 @@ namespace Ghenterprise_Backend.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string DateCreated { get; set; }
+        public string Date_Created { get; set; }
+        public List<Category> Categories { get; set; }
+        public List<Tag> Tags { get; set; }
+        public Location Location { get; set; }
     }
 }

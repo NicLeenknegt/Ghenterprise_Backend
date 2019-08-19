@@ -178,11 +178,23 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Category.cs" />
+    <Compile Include="Models\City.cs" />
     <Compile Include="Models\Enterprise.cs" />
+    <Compile Include="Models\Enterprise_Has_Category.cs" />
+    <Compile Include="Models\Enterprise_Has_Location.cs" />
+    <Compile Include="Models\Enterprise_Has_Tag.cs" />
     <Compile Include="Models\KeyGenerator.cs" />
+    <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Response.cs" />
+    <Compile Include="Models\Street.cs" />
+    <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\User_Has_Enterprise.cs" />
+    <Compile Include="Models\User_Has_Subscription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\BaseRepository.cs" />
+    <Compile Include="Repositories\CategoryRepository.cs" />
     <Compile Include="Repositories\EnterpriseRepository.cs" />
     <Compile Include="Repositories\SSH.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
