@@ -172,6 +172,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\CategoryController.cs" />
     <Compile Include="Controllers\EnterpriseController.cs" />
+    <Compile Include="Controllers\EventController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
@@ -182,10 +183,14 @@
     <Compile Include="Models\City.cs" />
     <Compile Include="Models\Enterprise.cs" />
     <Compile Include="Models\Enterprise_Has_Category.cs" />
+    <Compile Include="Models\Enterprise_Has_Event.cs" />
     <Compile Include="Models\Enterprise_Has_Location.cs" />
     <Compile Include="Models\Enterprise_Has_Tag.cs" />
+    <Compile Include="Models\Event.cs" />
+    <Compile Include="Models\Event_Has_Location.cs" />
     <Compile Include="Models\KeyGenerator.cs" />
     <Compile Include="Models\Location.cs" />
+    <Compile Include="Models\Notification.cs" />
     <Compile Include="Models\Response.cs" />
     <Compile Include="Models\Street.cs" />
     <Compile Include="Models\Tag.cs" />
@@ -196,6 +201,7 @@
     <Compile Include="Repositories\BaseRepository.cs" />
     <Compile Include="Repositories\CategoryRepository.cs" />
     <Compile Include="Repositories\EnterpriseRepository.cs" />
+    <Compile Include="Repositories\EventRepository.cs" />
     <Compile Include="Repositories\SSH.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
   </ItemGroup>

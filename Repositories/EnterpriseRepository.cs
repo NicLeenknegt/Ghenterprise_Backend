@@ -13,20 +13,17 @@ namespace Ghenterprise_Backend.Repositories
     {
         public string ConnString { get; set; }
         public SSH Ssh { get; set; }
-        public KeyGenerator KeyGen { get; set; }
 
         public EnterpriseRepository()
         {
             ConnString = "server=127.0.0.1;port=22;database=Ghenterprise;Uid=jari;Pwd=pazaak;";
             Ssh = new SSH();
-            KeyGen = new KeyGenerator();
         }
 
         public int SaveEnterprise(int UserId, Enterprise enterprise)
         {
             return Ssh.executeQuery<int>(() => {
                 int rowsAffected = 0;
-                enterprise.Id = KeyGen.CreateTableID("enterprise");
                 enterprise.Date_Created = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
                 List<Enterprise_Has_Tag> entTags = new List<Enterprise_Has_Tag>();
                 List<Enterprise_Has_Category> entCats = new List<Enterprise_Has_Category>();
@@ -407,6 +404,133 @@ namespace Ghenterprise_Backend.Repositories
                 query += "COMMIT;";
 
                 Debug.WriteLine(query);
+
+                using (MySqlConnection conn = new MySqlConnection(ConnString))
+                {
+                    conn.Open();
+                    using (MySqlCommand command = new MySqlCommand(query, conn))
+                    {
+                        rowsAffected = command.ExecuteNonQuery();
+                    }
+                }
+
+                return rowsAffected;
+            });
+        }
+
+        public int DeleteEnterpise(string enterprise_Id)
+        {
+            return ssh.executeQuery(() =>
+            {
+                int rowsAffected = 0;
+
+                var query = "BEGIN;";
+
+                query += DeleteQuery(new Enterprise_Has_Category[] 
+                {
+                    new Enterprise_Has_Category
+                    {
+                        Enterprise_ID = enterprise_Id
+                    }
+                }, new string[] { "Enterprise_ID" });
+
+                query += DeleteQuery(new Enterprise_Has_Location[]
+                {
+                    new Enterprise_Has_Location
+                    {
+                        Enterprise_ID = enterprise_Id
+                    }
+                }, new string[] { "Enterprise_ID" });
+
+                query += DeleteQuery(new Enterprise_Has_Tag[]
+                {
+                    new Enterprise_Has_Tag
+                    {
+                        Enterprise_ID = enterprise_Id
+                    }
+                }, new string[] { "Enterprise_ID" });
+
+                query += DeleteQuery(new User_Has_Enterprise[]
+                {
+                    new User_Has_Enterprise
+                    {
+                        Enterprise_ID = enterprise_Id
+                    }
+                }, new string[] { "Enterprise_ID" });
+
+                query += DeleteQuery(new User_Has_Subscription[]
+                {
+                    new User_Has_Subscription
+                    {
+                        Enterprise_ID = enterprise_Id
+                    }
+                }, new string[] { "Enterprise_ID" });
+
+                query += DeleteQuery(new Enterprise[]
+                {
+                    new Enterprise()
+                    {
+                        Id = enterprise_Id
+                    }
+                });
+
+                query += "COMMIT;";
+
+                using (MySqlConnection conn = new MySqlConnection(ConnString))
+                {
+                    conn.Open();
+                    using (MySqlCommand command = new MySqlCommand(query, conn))
+                    {
+                        rowsAffected = command.ExecuteNonQuery();
+                    }
+                }
+
+                return rowsAffected;
+            });
+        }
+
+        public int DeleteSubscriptionByEnterpriseId(int user_id, string enterprise_Id)
+        {
+            return ssh.executeQuery(() =>
+            {
+                int rowsAffected = 0;
+
+                var query = DeleteQuery(new User_Has_Subscription[]
+                {
+                    new User_Has_Subscription()
+                    {
+                        Enterprise_ID = enterprise_Id,
+                        User_ID = user_id
+                    }
+                }, new string[] { "Enterprise_ID", "User_ID" });
+
+                using (MySqlConnection conn = new MySqlConnection(ConnString))
+                {
+                    conn.Open();
+                    using (MySqlCommand command = new MySqlCommand(query, conn))
+                    {
+                        rowsAffected = command.ExecuteNonQuery();
+                    }
+                }
+
+                return rowsAffected;
+            });
+        }
+
+        public int DeleteAllSubscriptions(int user_id)
+        {
+            return ssh.executeQuery(() =>
+            {
+                int rowsAffected = 0;
+
+                var query = DeleteQuery(new User_Has_Subscription[]
+                {
+                    new User_Has_Subscription()
+                    {
+                        Enterprise_ID = null,
+                        User_ID = user_id
+                    }
+                }, new string[] { "User_ID" });
 
                 using (MySqlConnection conn = new MySqlConnection(ConnString))
                 {

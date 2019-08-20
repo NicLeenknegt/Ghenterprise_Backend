@@ -12,17 +12,10 @@ namespace Ghenterprise_Backend.Controllers
 {
     public class EnterpriseController : ApiController
     {
-        public string ConnString { get; set; }
-        public SSH Ssh { get; set; }
-        public KeyGenerator KeyGen { get; set; }
         public EnterpriseRepository EnterRepo { get; set; }
-        public CategoryRepository CatRepo { get; set; }
 
         public EnterpriseController()
         {
-            ConnString = "server=127.0.0.1;port=22;database=Ghenterprise;Uid=jari;Pwd=pazaak;";
-            Ssh = new SSH();
-            KeyGen = new KeyGenerator();
             EnterRepo = new EnterpriseRepository();
         }
 
@@ -94,6 +87,51 @@ namespace Ghenterprise_Backend.Controllers
             try
             {
                 affectedRows = EnterRepo.UpdateEnterprise(enterprise);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
+        }
+        
+        [HttpDelete]
+        public HttpResponseMessage DeleteEnterprise([FromUri] string enterpriseID)
+        {
+            int affectedRows = 0;
+            try
+            {
+                affectedRows = EnterRepo.DeleteEnterpise(enterpriseID);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
+        }
+
+        [HttpDelete]
+        public HttpResponseMessage DeleteSubscriptionByEnterpriseId([FromUri] int userID, [FromUri] string enterpriseID)
+        {
+            int affectedRows = 0;
+            try
+            {
+                affectedRows = EnterRepo.DeleteSubscriptionByEnterpriseId(userID, enterpriseID);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
+        }
+
+        [HttpDelete]
+        public HttpResponseMessage DeleteAllSubscriptions([FromUri] int userID)
+        {
+            int affectedRows = 0;
+            try
+            {
+                affectedRows = EnterRepo.DeleteAllSubscriptions(userID);
             }
             catch (Exception ex)
             {
