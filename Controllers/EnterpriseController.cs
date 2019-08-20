@@ -62,7 +62,7 @@ namespace Ghenterprise_Backend.Controllers
             List<Enterprise> entList = new List<Enterprise>();
             try
             {
-                entList = EnterRepo.GetEnterprisesByOwner(userID);
+                entList = EnterRepo.GetSubsciptionEnterprise(userID);
             }
             catch (Exception ex)
             {
@@ -79,6 +79,21 @@ namespace Ghenterprise_Backend.Controllers
             try
             {
                 affectedRows = EnterRepo.SubscribeToEnterprise(userID, entID);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
+        }
+
+        [HttpPut]
+        public HttpResponseMessage UpdateEnterprise([FromBody] Enterprise enterprise)
+        {
+            int affectedRows = 0;
+            try
+            {
+                affectedRows = EnterRepo.UpdateEnterprise(enterprise);
             }
             catch (Exception ex)
             {

@@ -65,6 +65,54 @@ namespace Ghenterprise_Backend.Repositories
             return result.ToString();
         }
 
+        private List<string> GetPropNames<T>(T t, Boolean createID = true)
+        {
+            List<string> propVal = new List<string>();
+
+            foreach (var prop in GetNonClassProperties(t))
+            {
+                if (prop.Name.ToLower() == "id" && createID)
+                {
+                    propVal.Add(prop.Name);
+                }
+                else if (prop.Name.ToLower() != "id")
+                {
+                    propVal.Add(prop.Name);
+                }
+                    
+            }
+
+            return propVal;
+        }
+
+        private List<List<string>> GetPropValue<T>(T[] t, Boolean createID = true)
+        {
+            List<List<string>> propVar = new List<List<string>>();
+
+            foreach (var row in t)
+            {
+                List<string> propVarRow = new List<string>();
+
+                foreach (var prop in GetNonClassProperties(row))
+                {
+
+                    if (prop.Name.ToLower() == "id" && createID)
+                    {
+                        prop.SetValue(row, CreateTableID(row.GetType().Name.ToLower()));
+                        propVarRow.Add(string.Format("'{0}'", prop.GetValue(row, null)));
+                    }
+                    else if (prop.Name.ToLower() != "id")
+                    {
+                        propVarRow.Add(string.Format("'{0}'", prop.GetValue(row, null)));
+                    }
+                }
+
+                propVar.Add(propVarRow);
+            }
+
+            return propVar;
+        }
+
         private PropertyInfo[] GetNonClassProperties<T>(T t)
         {
             return t.GetType().GetProperties().Where((p) => 
@@ -78,6 +126,20 @@ namespace Ghenterprise_Backend.Repositories
             ).ToArray();
         }
 
+        private string GetValueOfProperty<T>(T t, string propertyName = "id")
+        {
+            string result = "";
+            try
+            {
+                result = string.Format("{0}", t.GetType().GetProperties().Where(prop => prop.Name.ToLower() == propertyName.ToLower()).First().GetValue(t));
+            }
+            catch (Exception)
+            {
+                throw new Exception("Error in BaseRepository.cs: Property ' " + propertyName + " ' does not exist in " + t.GetType().Name);
+            }
+            return result;
+        }
+
         internal string InsertQuery<T>(T[] t)
         {
             if (t == null || t.Length == 0)
@@ -85,45 +147,98 @@ namespace Ghenterprise_Backend.Repositories
                 return "";
             }
 
-            var insertVar = " ( ";
-            var insertVal = " ";
+            var insertVar = "";
+            var insertVal = "";
             string tableName = t[0].GetType().Name.ToLower();
-            PropertyInfo[] insertVarProp = GetNonClassProperties(t[0]);
 
-            foreach (var prop in insertVarProp)
-            {
-                insertVar += prop.Name + ((insertVarProp.Last().Name == prop.Name)? " ) ": " , ");
-            }
+            insertVar += string.Format("( {0} )", string.Join(" ,", GetPropNames(t[0]).ToArray()));
 
-            for (int i = 0; i < t.Length; i++)
-            {
-                insertVal += " ( ";
-                PropertyInfo[] insertValProp = GetNonClassProperties(t[i]);
-
-                foreach (var prop in insertValProp)
-                {
-
-                    if (prop.Name.ToLower() == "id")
-                    {
-                        prop.SetValue(t[i], CreateTableID(tableName));
-                    }
-
-                    insertVal += "'" + prop.GetValue(t[i], null) + "'" + ((insertValProp.Last().Name == prop.Name) ? " ) " : " , ");
-                }
-
-                if ((i + 1) != t.Length)
-                {
-                    insertVal += "  , ";
-                }
-            }
-
-
-
+            insertVal += string.Join(" , ",
+                GetPropValue(t).Select(
+                    item =>
+                        string.Format(" ( {0} )",
+                            string.Join(" ,", item.ToArray()))
+                    ));
+             
             var query = String.Format("INSERT INTO {0} {1} VALUES {2};", tableName,  insertVar, insertVal);
 
             Debug.WriteLine(tableName.ToUpper() + " INSERT QUERY BEGIN");
             Debug.WriteLine(query);
             Debug.WriteLine(tableName.ToUpper() + " INSERT QUERY END");
+            return query;
+        }
+
+        internal string UpdateQuery<T>(T[] t, string[] searchProperties = null)
+        {
+            if (t == null || t.Length == 0)
+            {
+                return "";
+            }
+
+            searchProperties = searchProperties ?? new string[] { "id" };
+
+            var query = "";
+            List<string> columnNames = GetPropNames(t[0], false);
+            List<List<string>> columnValues = GetPropValue(t, false);
+
+
+            for (int i = 0; i < t.Length; i++)
+            {
+                query += string.Format("UPDATE {0} ", t[i].GetType().Name.ToLower());
+                query += "SET ";
+                query += string.Join(" , ", columnValues[i].Select(
+                        (v, ind) =>
+                            string.Format(" {0} = {1} ", columnNames[ind], v)
+                    ));
+
+                query += "  WHERE ";
+
+                query += string.Join(" AND ", searchProperties.Select( 
+                        (p) =>
+                            string.Format(" {0} = '{1}' ", 
+                                p,
+                                GetValueOfProperty(t[i], p))
+                    ));
+            }
+
+            query += ";";
+
+            Debug.WriteLine(t[0].GetType().Name.ToUpper() + " UPDATE QUERY BEGIN");
+            Debug.WriteLine(query);
+            Debug.WriteLine(t[0].GetType().Name.ToUpper() + " UPDATE QUERY END");
+
+            return query;
+        }
+
+        internal string DeleteQuery<T>(T[] t, string[] searchProperties = null)
+        {
+            if (t == null || t.Length == 0)
+            {
+                return "";
+            }
+
+            searchProperties = searchProperties ?? new string[] { "id" };
+
+            var query = "";
+
+            foreach (var item in t)
+            {
+                query += string.Format("DELETE FROM {0} ", item.GetType().Name.ToLower());
+                query += "WHERE ";
+                query += string.Join(" AND ", searchProperties.Select(
+                        (p) =>
+                            string.Format(" {0} = '{1}' ",
+                                p,
+                                GetValueOfProperty(item, p))
+                    ));
+            }
+
+            query += ";";
+
+            Debug.WriteLine(t[0].GetType().Name.ToUpper() + " DELETE QUERY BEGIN");
+            Debug.WriteLine(query);
+            Debug.WriteLine(t[0].GetType().Name.ToUpper() + " DELETE QUERY END");
+
             return query;
         }
     }
