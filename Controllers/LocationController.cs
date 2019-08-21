@@ -9,73 +9,77 @@ using System.Web.Http;
 
 namespace Ghenterprise_Backend.Controllers
 {
-    public class EventController : ApiController
+    public class LocationController : ApiController
     {
-        private EventRepository EventRepo { get; set; }
+        public LocationRepository LocRepo { get; set; }
 
-        public EventController()
+        public LocationController()
         {
-            EventRepo = new EventRepository();
-        }
-
-        [HttpPost]
-        public HttpResponseMessage InsertEvent([FromBody] Event backendEvent)
-        {
-            int affectedRows = 0;
-            try
-            {
-                affectedRows = EventRepo.SaveEvent(backendEvent);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-            }
-            return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
-        }
-
-        [HttpPut]
-        public HttpResponseMessage UpdateEvent([FromBody] Event backendEvent)
-        {
-            int affectedRows = 0;
-            try
-            {
-                affectedRows = EventRepo.UpdateEvent(backendEvent);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-            }
-            return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
-        }
-
-        [HttpDelete]
-        public HttpResponseMessage DeleteEvent([FromUri] string Event_ID)
-        {
-            int affectedRows = 0;
-            try
-            {
-                affectedRows = EventRepo.DeleteEvent(Event_ID);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-            }
-            return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
+            LocRepo = new LocationRepository();
         }
 
         [HttpGet]
-        public HttpResponseMessage GetEventsOfEnterprise([FromUri] string Enterprise_ID)
+        [Route("api/Location/City")]
+        public HttpResponseMessage GetAllCities()
         {
-            List<Event> eventList = new List<Event>();
+            List<City> cityList = new List<City>();
             try
             {
-                eventList = EventRepo.GetEventsOfEnterprise(Enterprise_ID);
+                cityList = LocRepo.GetAllCities();
             }
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
-            return Request.CreateResponse(HttpStatusCode.OK, eventList);
+            return Request.CreateResponse(HttpStatusCode.OK, cityList);
+        }
+
+        [HttpGet]
+        [Route("api/Location/Street")]
+        public HttpResponseMessage GetAllStreets()
+        {
+            List<Street> streetList = new List<Street>();
+            try
+            {
+                streetList = LocRepo.GetAllStreets();
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, streetList);
+        }
+
+        [HttpPost]
+        [Route("api/Location/City")]
+        public HttpResponseMessage InsertCity(City city)
+        {
+            int affectedRows = 0;
+            try
+            {
+                affectedRows = LocRepo.InsertCity(city);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
+        }
+
+        [HttpPost]
+        [Route("api/Location/Street")]
+        public HttpResponseMessage InsertStreet(Street street)
+        {
+            int affectedRows = 0;
+            try
+            {
+                affectedRows = LocRepo.InsertStreet(street);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
         }
     }
 }

@@ -103,7 +103,20 @@ namespace Ghenterprise_Backend.Repositories
                     }
                     else if (prop.Name.ToLower() != "id")
                     {
-                        propVarRow.Add(string.Format("'{0}'", prop.GetValue(row, null)));
+                        string value = "";
+
+                        if (prop.PropertyType == typeof(bool))
+                        {
+                            Debug.WriteLine("1");
+                            value = (bool) prop.GetValue(row, null) ? "'1'" : "'0'";
+                            Debug.WriteLine("2");
+                        } else
+                        {
+                            value = string.Format("'{0}'", prop.GetValue(row, null));
+                        }
+
+
+                        propVarRow.Add(value);
                     }
                 }
 
@@ -120,7 +133,8 @@ namespace Ghenterprise_Backend.Repositories
                     ( p.GetValue(t, null) != null && 
                         (
                             p.GetValue(t, null).GetType() == typeof(int) || 
-                            p.GetValue(t, null).GetType() == typeof(string)
+                            p.GetValue(t, null).GetType() == typeof(string) ||
+                            p.GetValue(t, null).GetType() == typeof(bool)
                         )
                     )
             ).ToArray();
@@ -131,7 +145,15 @@ namespace Ghenterprise_Backend.Repositories
             string result = "";
             try
             {
-                result = string.Format("{0}", t.GetType().GetProperties().Where(prop => prop.Name.ToLower() == propertyName.ToLower()).First().GetValue(t));
+                PropertyInfo prop = t.GetType().GetProperties().Where(p => p.Name.ToLower() == propertyName.ToLower()).First();
+                
+                if (prop.GetValue(t).GetType() == typeof(string) || prop.GetValue(t).GetType() == typeof(String))
+                {
+                    result = string.Format("'{0}'", prop.GetValue(t));
+                } else
+                {
+                    result = string.Format("{0}", prop.GetValue(t));
+                }
             }
             catch (Exception)
             {
@@ -195,7 +217,7 @@ namespace Ghenterprise_Backend.Repositories
 
                 query += string.Join(" AND ", searchProperties.Select( 
                         (p) =>
-                            string.Format(" {0} = '{1}' ", 
+                            string.Format(" {0} = {1} ", 
                                 p,
                                 GetValueOfProperty(t[i], p))
                     ));
@@ -227,7 +249,7 @@ namespace Ghenterprise_Backend.Repositories
                 query += "WHERE ";
                 query += string.Join(" AND ", searchProperties.Select(
                         (p) =>
-                            string.Format(" {0} = '{1}' ",
+                            string.Format(" {0} = {1} ",
                                 p,
                                 GetValueOfProperty(item, p))
                     ));

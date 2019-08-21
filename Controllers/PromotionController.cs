@@ -9,22 +9,22 @@ using System.Web.Http;
 
 namespace Ghenterprise_Backend.Controllers
 {
-    public class EventController : ApiController
+    public class PromotionController : ApiController
     {
-        private EventRepository EventRepo { get; set; }
+        public PromotionRepository PromRepo { get; set; }
 
-        public EventController()
+        public PromotionController()
         {
-            EventRepo = new EventRepository();
+            PromRepo = new PromotionRepository();
         }
 
         [HttpPost]
-        public HttpResponseMessage InsertEvent([FromBody] Event backendEvent)
+        public HttpResponseMessage InsertPromotion([FromBody] Promotion prom)
         {
             int affectedRows = 0;
             try
             {
-                affectedRows = EventRepo.SaveEvent(backendEvent);
+                affectedRows = PromRepo.SavePromotion(prom);
             }
             catch (Exception ex)
             {
@@ -34,12 +34,12 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpPut]
-        public HttpResponseMessage UpdateEvent([FromBody] Event backendEvent)
+        public HttpResponseMessage UpdatePromotion([FromBody] Promotion prom)
         {
             int affectedRows = 0;
             try
             {
-                affectedRows = EventRepo.UpdateEvent(backendEvent);
+                affectedRows = PromRepo.UpdatePromotion(prom);
             }
             catch (Exception ex)
             {
@@ -49,12 +49,12 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpDelete]
-        public HttpResponseMessage DeleteEvent([FromUri] string Event_ID)
+        public HttpResponseMessage DeletePromotion([FromUri] string Promotion_ID)
         {
             int affectedRows = 0;
             try
             {
-                affectedRows = EventRepo.DeleteEvent(Event_ID);
+                affectedRows = PromRepo.DeletePromotionById(Promotion_ID);
             }
             catch (Exception ex)
             {
@@ -64,18 +64,18 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpGet]
-        public HttpResponseMessage GetEventsOfEnterprise([FromUri] string Enterprise_ID)
+        public HttpResponseMessage GetPromotionByEnterpriseId([FromUri] string Enterprise_ID)
         {
-            List<Event> eventList = new List<Event>();
+            List<Promotion> promList = new List<Promotion>();
             try
             {
-                eventList = EventRepo.GetEventsOfEnterprise(Enterprise_ID);
+                promList = PromRepo.GetPromotionsByEnterprise(Enterprise_ID);
             }
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
-            return Request.CreateResponse(HttpStatusCode.OK, eventList);
+            return Request.CreateResponse(HttpStatusCode.OK, promList);
         }
     }
 }

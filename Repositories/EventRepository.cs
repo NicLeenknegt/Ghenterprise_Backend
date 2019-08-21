@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 
@@ -30,38 +31,6 @@ namespace Ghenterprise_Backend.Repositories
                     backendEvent
                 });
 
-                if (backendEvent.Location != null && backendEvent.Location.Id == null)
-                {
-                    if (backendEvent.Location.Street != null && backendEvent.Location.Street.Id == null)
-                    {
-                        query += InsertQuery(new Street[]
-                        {
-                            backendEvent.Location.Street
-                        });
-                    }
-
-                    if (backendEvent.Location.City != null && backendEvent.Location.City.Id == null)
-                    {
-                        query += InsertQuery(new City[]
-                        {
-                            backendEvent.Location.City
-                        });
-                    }
-
-                    query += InsertQuery(new Location[] 
-                    {
-                        backendEvent.Location
-                    });
-                }
-
-                query += InsertQuery(new Event_Has_Location[]
-                {
-                    new Event_Has_Location
-                    {
-                        Event_Id = backendEvent.Id,
-                        Location_Id = backendEvent.Location.Id
-                    }
-                });
 
                 query += InsertQuery(new Enterprise_Has_Event[]
                 {
@@ -108,27 +77,6 @@ namespace Ghenterprise_Backend.Repositories
                     backendEvent
                 });
 
-                if (backendEvent.Location.Street.Id == null)
-                {
-                    query += InsertQuery(new Street[]
-                    {
-                        backendEvent.Location.Street
-                    });
-                }
-
-                if (backendEvent.Location.City.Id == null)
-                {
-                    query += InsertQuery(new City[]
-                    {
-                        backendEvent.Location.City
-                    });
-                }
-
-                query += UpdateQuery(new Location[]
-                {
-                    backendEvent.Location
-                });
-
                 query += "COMMIT;";
 
                 using (MySqlConnection conn = new MySqlConnection(ConnString))
@@ -142,6 +90,97 @@ namespace Ghenterprise_Backend.Repositories
 
                 return rowsAffected;
             });
+        }
+
+        public int DeleteEvent(string EventId)
+        {
+            return ssh.executeQuery(() => 
+            {
+                int rowsAffected = 0;
+
+                var query = DeleteQuery(new Event[]
+                {
+                    new Event
+                    {
+                        Id = EventId
+                    }
+                });
+
+                using (MySqlConnection conn = new MySqlConnection(ConnString))
+                {
+                    conn.Open();
+                    using (MySqlCommand command = new MySqlCommand(query, conn))
+                    {
+                        rowsAffected = command.ExecuteNonQuery();
+                    }
+                }
+
+                return rowsAffected;
+            });
+        }
+
+        public List<Event> GetEventsOfEnterprise(string EnterpriseId)
+        {
+            return ssh.executeQuery(() =>
+            {
+
+                var query = String.Format("SELECT  e.id,  e.description, e.start_date, e.end_date, l.Id, l.street_number, l.street_id, s.name, l.city_id, c.name " +
+                        "FROM Ghenterprise.event e " +
+                        "left outer join Ghenterprise.enterprise_has_event ehe " +
+                        "on ehe.event_id = e.id " +
+                        "left outer join Ghenterprise.enterprise_has_location ehl " +
+                        "on ehl.enterprise_id = ehe.enterprise_id " +
+                        "left outer join Ghenterprise.location l " +
+                        "on ehl.location_id = l.id " +
+                        "left outer join Ghenterprise.city c " +
+                        "on l.city_id = c.id " +
+                        "left outer join Ghenterprise.street s  " +
+                        "on l.street_id = s.id " +
+                        "where ehe.enterprise_id = '{0}';",
+                        EnterpriseId);
+
+                DataTable table = new DataTable();
+                List<Event> eventList = new List<Event>();
+
+                using(MySqlConnection conn = new MySqlConnection(ConnString))
+                {
+                    conn.Open();
+                    using(MySqlCommand command = new MySqlCommand(query, conn))
+                    {
+                        using(MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while(reader.Read() == true)
+                            {
+                                eventList.Add(new Event
+                                {
+                                    Id = reader.GetString(0),
+                                    Description = reader.GetString(1),
+                                    Start_Date = reader.GetString(2),
+                                    End_Date = reader.GetString(3),
+                                    Location = new Location
+                                    {
+                                        Id = reader.GetString(4),
+                                        Street_Number = reader.GetInt16(5),
+                                        Street = new Street
+                                        {
+                                            Id = reader.GetString(6),
+                                            Name = reader.GetString(7)
+                                        },
+                                        City = new City
+                                        {
+                                            Id = reader.GetString(8),
+                                            Name = reader.GetString(9)
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+
+                return eventList;
+            });
+            
         }
     }
 }
