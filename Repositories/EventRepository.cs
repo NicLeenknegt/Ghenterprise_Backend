@@ -124,7 +124,7 @@ namespace Ghenterprise_Backend.Repositories
             return ssh.executeQuery(() =>
             {
 
-                var query = String.Format("SELECT  e.id,  e.description, e.start_date, e.end_date, l.Id, l.street_number, l.street_id, s.name, l.city_id, c.name " +
+                var query = String.Format("SELECT  e.id, e.name,  e.description, e.start_date, e.end_date, l.Id, l.street_number, l.street_id, s.name, l.city_id, c.name " +
                         "FROM Ghenterprise.event e " +
                         "left outer join Ghenterprise.enterprise_has_event ehe " +
                         "on ehe.event_id = e.id " +
@@ -154,22 +154,23 @@ namespace Ghenterprise_Backend.Repositories
                                 eventList.Add(new Event
                                 {
                                     Id = reader.GetString(0),
-                                    Description = reader.GetString(1),
-                                    Start_Date = reader.GetString(2),
-                                    End_Date = reader.GetString(3),
+                                    Name = reader.GetString(1),
+                                    Description = reader.GetString(2),
+                                    Start_Date = reader.GetString(3),
+                                    End_Date = reader.GetString(4),
                                     Location = new Location
                                     {
-                                        Id = reader.GetString(4),
-                                        Street_Number = reader.GetInt16(5),
+                                        Id = reader.GetString(5),
+                                        Street_Number = reader.GetInt16(6),
                                         Street = new Street
                                         {
-                                            Id = reader.GetString(6),
-                                            Name = reader.GetString(7)
+                                            Id = reader.GetString(7),
+                                            Name = reader.GetString(8)
                                         },
                                         City = new City
                                         {
-                                            Id = reader.GetString(8),
-                                            Name = reader.GetString(9)
+                                            Id = reader.GetString(9),
+                                            Name = reader.GetString(10)
                                         }
                                     }
                                 });

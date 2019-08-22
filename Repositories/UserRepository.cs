@@ -69,11 +69,11 @@ namespace Ghenterprise_Backend.Repositories
             });
         }
 
-        public String login(LoginUser user)
+        public User login(User user)
         {
-            return ssh.executeQuery<String>(() => 
+            return ssh.executeQuery(() => 
             {
-                var query = String.Format("SELECT password FROM user WHERE email = '{0}' LIMIT 1;", user.email);
+                var query = String.Format("SELECT id, password FROM user WHERE email = '{0}' LIMIT 1;", user.email);
                 String response = "Password invalid";
 
                 using(MySqlConnection conn = new MySqlConnection(connString))
@@ -84,15 +84,23 @@ namespace Ghenterprise_Backend.Repositories
                     {
                         using(MySqlDataReader reader = command.ExecuteReader())
                         {
-                            while(reader.Read() == true)
+                            if (reader.HasRows)
                             {
-                                response = (reader.GetString(0) == user.password)? "Password valid":"Password invalid";
+                                while (reader.Read() == true)
+                                {
+                                    user.id = reader.GetInt16(0);
+                                    user.password = (reader.GetString(1) == user.password) ? "Password valid" : "Password invalid";
+                                }
+                            } else
+                            {
+                                user.password = "User doesn't exist";
                             }
+                            
                         }
                     }
                     conn.Close();
                 }   
-                return response;
+                return user;
             });
         }
     }

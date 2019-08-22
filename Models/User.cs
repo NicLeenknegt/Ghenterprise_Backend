@@ -26,4 +26,15 @@ namespace Ghenterprise_Backend.Models
         [Required]
         public String password { get; set; }
     }
+
+    public class User
+    {
+        public int id { get; set; }
+        public String firstname { get; set; }
+        public String lastname { get; set; }
+        public String email { get; set; }
+        public String password { get; set; }
+        public string Token { get; set; }
+
+    }
 }

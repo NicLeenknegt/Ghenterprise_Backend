@@ -12,6 +12,10 @@ using System.ComponentModel.DataAnnotations;
 using Ghenterprise_Backend.Models;
 using Ghenterprise_Backend.Repositories;
 using System.Net.Http.Headers;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace Ghenterprise_Backend.Controllers
 {
@@ -135,7 +139,7 @@ namespace Ghenterprise_Backend.Controllers
 
         [Route("api/User/login")]
         [HttpPost]
-        public HttpResponseMessage login([FromBody] LoginUser user)
+        public HttpResponseMessage login([FromBody] User user)
         {
             if(!ModelState.IsValid)
             {
@@ -148,7 +152,26 @@ namespace Ghenterprise_Backend.Controllers
             };
             try
             {
-                res.message = userRepo.login(user);
+                user = userRepo.login(user);
+                if (user.password == "Password valid")
+                {
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var key = Encoding.ASCII.GetBytes("FAKE");
+                    var tokenDescriptor = new SecurityTokenDescriptor
+                    {
+                        Subject = new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.Name, user.id.ToString())
+                        }),
+                        Expires = DateTime.UtcNow.AddDays(7),
+                        SigningCredentials = new SigningCredentials(
+                            new SymmetricSecurityKey(key),
+                            SecurityAlgorithms.HmacSha256Signature
+                            )
+                    };
+                    var token = tokenHandler.CreateToken(tokenDescriptor);
+                    user.Token = tokenHandler.WriteToken(token);
+                }
             }
             catch (Exception ex)
             {
@@ -156,7 +179,7 @@ namespace Ghenterprise_Backend.Controllers
                 errorReq.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 return errorReq;
             }
-            var req = Request.CreateResponse(HttpStatusCode.OK, res);
+            var req = Request.CreateResponse(HttpStatusCode.OK, user);
             req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             return req;
         }

@@ -1,11 +1,14 @@
 ﻿using Ghenterprise_Backend.Models;
 using Ghenterprise_Backend.Repositories;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Web.Http;
 
 namespace Ghenterprise_Backend.Controllers
@@ -37,9 +40,20 @@ namespace Ghenterprise_Backend.Controllers
         [HttpGet]
         public HttpResponseMessage GetEnterpriseByOwner([FromUri] int ownerID)
         {
+            
+
             List<Enterprise> entList = new List<Enterprise>();
             try
             {
+                var test = "";
+                Debug.WriteLine("AUTHENTICATION_1");
+                if (this.Request.Headers.Contains("username"))
+                {
+                    test = GetName(this.Request.Headers.GetValues("username").First());
+                }
+
+                Debug.WriteLine("AUTHENTICATION_2");
+                Debug.WriteLine(test);
                 entList = EnterRepo.GetEnterprisesByOwner(ownerID);
             }
             catch (Exception ex)
@@ -138,6 +152,21 @@ namespace Ghenterprise_Backend.Controllers
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
             return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
+        }
+
+        protected string GetName(string token)
+        {
+            var key = Encoding.ASCII.GetBytes("FAKE");
+            var handler = new JwtSecurityTokenHandler();
+            var validations = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+            var claims = handler.ValidateToken(token, validations, out var tokenSecure);
+            return claims.Identity.Name;
         }
     }
 }
