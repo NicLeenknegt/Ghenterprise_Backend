@@ -319,7 +319,7 @@ namespace Ghenterprise_Backend.Repositories
             
         }
 
-        public List<Enterprise> GetEnterpriseById(string ent_id)
+        public Enterprise GetEnterpriseById(string ent_id)
         {
             return ssh.executeQuery(() =>
             {
@@ -343,10 +343,11 @@ namespace Ghenterprise_Backend.Repositories
                     "on l.city_id = cit.id " +
                     "left outer join Ghenterprise.user_has_enterprise uhe " +
                     "on uhe.enterprise_id = e.id " +
-                    "where e.id = '{0}';",
+                    "where e.id = '{0}' " +
+                    "LIMIT 1;",
                     ent_id);
 
-                return MysqlReaderToEterprise(query);
+                return MysqlReaderToEterprise(query).FirstOrDefault();
             });
 
         }

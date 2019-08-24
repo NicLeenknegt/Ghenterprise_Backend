@@ -40,7 +40,7 @@ namespace Ghenterprise_Backend.Controllers
         [HttpGet]
         public HttpResponseMessage GetEnerpriseById([FromUri] string enterprise_id)
         {
-            List<Enterprise> entList = new List<Enterprise>();
+            Enterprise entList = new Enterprise();
 
             try
             {
