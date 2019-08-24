@@ -37,6 +37,22 @@ namespace Ghenterprise_Backend.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, entList);
         }
 
+        [HttpGet]
+        public HttpResponseMessage GetEnerpriseById([FromUri] string enterprise_id)
+        {
+            List<Enterprise> entList = new List<Enterprise>();
+
+            try
+            {
+                entList = EnterRepo.GetEnterpriseById(enterprise_id);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, entList);
+        }
+
         [HttpPost]
         public HttpResponseMessage SaveEnterprise( [FromBody] Enterprise enterprise)
         {

@@ -62,13 +62,13 @@ namespace Ghenterprise_Backend.Controllers
         [HttpGet]
         public HttpResponseMessage checkEmail([FromUri] String email)
         {
-            Response res = new Response
+            User res = new User
             {
-                message = "email doesn't exist"
+                password = "email doesn't exist"
             };
             try
             {
-                res.message = (userRepo.checkEmail(email)) ? "email exists" : "email doesn't exist";
+                res.Token = (userRepo.checkEmail(email)) ? "email exists" : "email doesn't exist";
             }
             catch (Exception ex)
             {

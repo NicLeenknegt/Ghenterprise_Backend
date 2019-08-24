@@ -319,6 +319,38 @@ namespace Ghenterprise_Backend.Repositories
             
         }
 
+        public List<Enterprise> GetEnterpriseById(string ent_id)
+        {
+            return ssh.executeQuery(() =>
+            {
+                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name " +
+                    "FROM Ghenterprise.enterprise e " +
+                    "left outer join Ghenterprise.enterprise_has_tag eht " +
+                    "on eht.enterprise_id = e.id " +
+                    "left outer join Ghenterprise.tag t " +
+                    "on eht.tag_id = t.id " +
+                    "left outer join Ghenterprise.enterprise_has_category ehc " +
+                    "on ehc.enterprise_id = e.id " +
+                    "left outer join Ghenterprise.category c " +
+                    "on ehc.category_id = c.id " +
+                    "left outer join Ghenterprise.enterprise_has_location ehl " +
+                    "on ehl.enterprise_id = e.id " +
+                    "left outer join Ghenterprise.location l " +
+                    "on ehl.location_id = l.id " +
+                    "left outer join Ghenterprise.street s " +
+                    "on l.street_id = s.id " +
+                    "left outer join Ghenterprise.city cit " +
+                    "on l.city_id = cit.id " +
+                    "left outer join Ghenterprise.user_has_enterprise uhe " +
+                    "on uhe.enterprise_id = e.id " +
+                    "where e.id = '{0}';",
+                    ent_id);
+
+                return MysqlReaderToEterprise(query);
+            });
+
+        }
+
         public List<Enterprise> GetSubsciptionEnterprise(string userID)
         {
             return ssh.executeQuery(() =>
