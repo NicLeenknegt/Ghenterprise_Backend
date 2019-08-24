@@ -87,5 +87,20 @@ namespace Ghenterprise_Backend.Controllers
             }
             return Request.CreateResponse(HttpStatusCode.OK, eventList);
         }
+
+        [HttpGet]
+        public HttpResponseMessage GetAllEvents()
+        {
+            List<Event> eventList = new List<Event>();
+            try
+            {
+                eventList = EventRepo.GetAllEvents();
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, eventList);
+        }
     }
 }

@@ -456,6 +456,7 @@
     <Compile Include="Models\KeyGenerator.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Notification.cs" />
+    <Compile Include="Models\Opening_Hours.cs" />
     <Compile Include="Models\Promotion.cs" />
     <Compile Include="Models\Response.cs" />
     <Compile Include="Models\Street.cs" />

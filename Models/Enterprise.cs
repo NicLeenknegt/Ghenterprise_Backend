@@ -17,5 +17,6 @@ namespace Ghenterprise_Backend.Models
         public Location Location { get; set; }
         public List<Event> Events { get; set; }
         public List<Promotion> Promotions { get; set; }
+        public List<Opening_Hours> Opening_Hours { get; set; }
     }
 }

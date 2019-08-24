@@ -55,6 +55,14 @@ namespace Ghenterprise_Backend.Repositories
                         query += InsertQuery<Enterprise_Has_Tag>(entTags.ToArray());
                     }
                 }
+
+                if (enterprise.Opening_Hours != null)
+                {
+                    if (enterprise.Opening_Hours.Count > 0)
+                    {
+                        query += InsertQuery(enterprise.Opening_Hours.ToArray());
+                    }
+                }
                 Debug.WriteLine("2");
                 if (enterprise.Location.City.Id == null && enterprise.Location.City.Name != null)
                 {
