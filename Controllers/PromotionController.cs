@@ -91,16 +91,16 @@ namespace Ghenterprise_Backend.Controllers
         [HttpGet]
         public HttpResponseMessage GetAllEvents()
         {
-            List<Event> eventList = new List<Event>();
+            List<Promotion> promList = new List<Promotion>();
             try
             {
-                eventList = PromRepo.GetAllEvents();
+                promList = PromRepo.GetAllPromotions();
             }
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
-            return Request.CreateResponse(HttpStatusCode.OK, eventList);
+            return Request.CreateResponse(HttpStatusCode.OK, promList);
         }
     }
 }
