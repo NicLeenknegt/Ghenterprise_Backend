@@ -60,15 +60,12 @@ namespace Ghenterprise_Backend.Controllers
 
         [Route("api/User/check-email")]
         [HttpGet]
-        public HttpResponseMessage checkEmail([FromUri] String email)
+        public HttpResponseMessage checkEmail([FromBody] User user)
         {
-            User res = new User
-            {
-                password = "email doesn't exist"
-            };
+            
             try
             {
-                res.Token = (userRepo.checkEmail(email)) ? "email exists" : "email doesn't exist";
+                user.Token = (userRepo.checkEmail(user.email)) ? "email exists" : "email doesn't exist";
             }
             catch (Exception ex)
             {
@@ -76,7 +73,7 @@ namespace Ghenterprise_Backend.Controllers
                 errorReq.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 return errorReq;
             }
-            var req = Request.CreateResponse(HttpStatusCode.OK, res);
+            var req = Request.CreateResponse(HttpStatusCode.OK, user);
             req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             return req;
         }
