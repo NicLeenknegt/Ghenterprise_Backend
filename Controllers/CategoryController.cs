@@ -11,22 +11,22 @@ namespace Ghenterprise_Backend.Controllers
 {
     public class CategoryController : ApiController
     {
-        public string ConnString { get; set; }
-        public SSH Ssh { get; set; }
-        public KeyGenerator KeyGen { get; set; }
+
         public CategoryRepository CatRepo { get; set; }
 
         public CategoryController()
         {
-            ConnString = "server=127.0.0.1;port=22;database=Ghenterprise;Uid=jari;Pwd=pazaak;";
-            Ssh = new SSH();
-            KeyGen = new KeyGenerator();
             CatRepo = new CategoryRepository();
         }
 
         [HttpPost]
         public HttpResponseMessage SaveCategories([FromBody] Category[] catArray)
         {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
+            }
+
             int affectedRows = 0;
             try
             {

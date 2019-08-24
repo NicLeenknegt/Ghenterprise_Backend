@@ -13,7 +13,7 @@ using System.Web.Http;
 
 namespace Ghenterprise_Backend.Controllers
 {
-    public class EnterpriseController : ApiController
+    public class EnterpriseController : BaseController
     {
         public EnterpriseRepository EnterRepo { get; set; }
 
@@ -22,13 +22,35 @@ namespace Ghenterprise_Backend.Controllers
             EnterRepo = new EnterpriseRepository();
         }
 
-        [HttpPost]
-        public HttpResponseMessage SaveEnterprise([FromUri] int userID, [FromBody] Enterprise enterprise)
+        public HttpResponseMessage GetAllEnterprise()
         {
-            int affectedRows = 0;
+            List<Enterprise> entList = new List<Enterprise>();
+
             try
             {
-                affectedRows = EnterRepo.SaveEnterprise(userID, enterprise);
+                entList = EnterRepo.GetAllEnterprise();
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, entList);
+        }
+
+        [HttpPost]
+        public HttpResponseMessage SaveEnterprise( [FromBody] Enterprise enterprise)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
+            //}
+            Debug.WriteLine("Save enterprise");
+            int affectedRows = 0;
+
+            try
+            {
+                string User_ID = ValidateToken();
+                affectedRows = EnterRepo.SaveEnterprise(User_ID, enterprise);
             }
             catch(Exception ex)
             {
@@ -38,23 +60,14 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpGet]
-        public HttpResponseMessage GetEnterpriseByOwner([FromUri] int ownerID)
+        [Route("api/Enterprise/Owner")]
+        public HttpResponseMessage GetEnterpriseByOwner()
         {
-            
-
             List<Enterprise> entList = new List<Enterprise>();
             try
             {
-                var test = "";
-                Debug.WriteLine("AUTHENTICATION_1");
-                if (this.Request.Headers.Contains("username"))
-                {
-                    test = GetName(this.Request.Headers.GetValues("username").First());
-                }
-
-                Debug.WriteLine("AUTHENTICATION_2");
-                Debug.WriteLine(test);
-                entList = EnterRepo.GetEnterprisesByOwner(ownerID);
+                string Owner_ID = ValidateToken();
+                entList = EnterRepo.GetEnterprisesByOwner(Owner_ID);
             }
             catch (Exception ex)
             {
@@ -64,12 +77,14 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpGet]
-        public HttpResponseMessage GetEnterpriseSubscriptions([FromUri] int userID)
+        [Route("api/Enterprise/Subscription")]
+        public HttpResponseMessage GetEnterpriseSubscriptions()
         {
             List<Enterprise> entList = new List<Enterprise>();
             try
             {
-                entList = EnterRepo.GetSubsciptionEnterprise(userID);
+                string User_ID = ValidateToken();
+                entList = EnterRepo.GetSubsciptionEnterprise(User_ID);
             }
             catch (Exception ex)
             {
@@ -79,13 +94,13 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpPost]
-        public HttpResponseMessage SubscribeToEnterprise([FromUri] int userID, [FromUri] string entID)
+        public HttpResponseMessage SubscribeToEnterprise([FromUri] string entID)
         {
-            Debug.WriteLine(entID);
             int affectedRows = 0;
             try
             {
-                affectedRows = EnterRepo.SubscribeToEnterprise(userID, entID);
+                string User_ID = ValidateToken();
+                affectedRows = EnterRepo.SubscribeToEnterprise(User_ID, entID);
             }
             catch (Exception ex)
             {
@@ -97,9 +112,15 @@ namespace Ghenterprise_Backend.Controllers
         [HttpPut]
         public HttpResponseMessage UpdateEnterprise([FromBody] Enterprise enterprise)
         {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
+            }
+
             int affectedRows = 0;
             try
             {
+                ValidateToken();
                 affectedRows = EnterRepo.UpdateEnterprise(enterprise);
             }
             catch (Exception ex)
@@ -115,6 +136,7 @@ namespace Ghenterprise_Backend.Controllers
             int affectedRows = 0;
             try
             {
+                ValidateToken();
                 affectedRows = EnterRepo.DeleteEnterpise(enterpriseID);
             }
             catch (Exception ex)
@@ -125,12 +147,13 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpDelete]
-        public HttpResponseMessage DeleteSubscriptionByEnterpriseId([FromUri] int userID, [FromUri] string enterpriseID)
+        public HttpResponseMessage DeleteSubscriptionByEnterpriseId( [FromUri] string enterpriseID)
         {
             int affectedRows = 0;
             try
             {
-                affectedRows = EnterRepo.DeleteSubscriptionByEnterpriseId(userID, enterpriseID);
+                string User_ID = ValidateToken();
+                affectedRows = EnterRepo.DeleteSubscriptionByEnterpriseId(User_ID, enterpriseID);
             }
             catch (Exception ex)
             {
@@ -140,12 +163,13 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpDelete]
-        public HttpResponseMessage DeleteAllSubscriptions([FromUri] int userID)
+        public HttpResponseMessage DeleteAllSubscriptions()
         {
             int affectedRows = 0;
             try
             {
-                affectedRows = EnterRepo.DeleteAllSubscriptions(userID);
+                string User_ID = ValidateToken();
+                affectedRows = EnterRepo.DeleteAllSubscriptions(User_ID);
             }
             catch (Exception ex)
             {
@@ -154,19 +178,6 @@ namespace Ghenterprise_Backend.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
         }
 
-        protected string GetName(string token)
-        {
-            var key = Encoding.ASCII.GetBytes("FAKE");
-            var handler = new JwtSecurityTokenHandler();
-            var validations = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false
-            };
-            var claims = handler.ValidateToken(token, validations, out var tokenSecure);
-            return claims.Identity.Name;
-        }
+                
     }
 }

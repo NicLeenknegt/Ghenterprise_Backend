@@ -54,6 +54,11 @@ namespace Ghenterprise_Backend.Controllers
         [Route("api/Location/City")]
         public HttpResponseMessage InsertCity(City city)
         {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
+            }
+
             int affectedRows = 0;
             try
             {
@@ -70,6 +75,11 @@ namespace Ghenterprise_Backend.Controllers
         [Route("api/Location/Street")]
         public HttpResponseMessage InsertStreet(Street street)
         {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
+            }
+
             int affectedRows = 0;
             try
             {

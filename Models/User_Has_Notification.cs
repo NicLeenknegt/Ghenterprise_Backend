@@ -7,7 +7,7 @@ namespace Ghenterprise_Backend.Models
 {
     public class User_Has_Notification
     {
-        public int User_Id { get; set; }
+        public string User_Id { get; set; }
         public bool Seen { get; set; }
         public string Notification_Id { get; set; }
     }

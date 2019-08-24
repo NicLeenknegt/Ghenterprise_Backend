@@ -19,7 +19,7 @@ using System.Security.Claims;
 
 namespace Ghenterprise_Backend.Controllers
 {
-    public class UserController : ApiController
+    public class UserController : BaseController
     {
         public UserRepository userRepo { get; set; }
 
@@ -36,13 +36,18 @@ namespace Ghenterprise_Backend.Controllers
 
         [Route("api/User/register")]
         [HttpPost]
-        public HttpResponseMessage Register([FromBody] RegistrationUser user)
+        public HttpResponseMessage Register([FromBody] User user)
         {
             int affectedRows = 0;
-
             try
             {
                 affectedRows = userRepo.registerUser(user);
+                user.password = "User wasn't registered";
+                if (affectedRows > 0)
+                {
+                    user.password = "User is registered";
+                    user.Token = GetToken(user.id);
+                }
             }
             catch (Exception ex)
             {
@@ -50,68 +55,7 @@ namespace Ghenterprise_Backend.Controllers
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
 
-            return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
-        //    try
-        //    {
-        //        System.Diagnostics.Debug.WriteLine("0");
-        //        var filepath = @"D:\school\18-19\Sem_1\Mobile_App_voor_Windows\Server_Keys\keys\private";
-        //        System.Diagnostics.Debug.WriteLine("1");
-        //        var key = File.ReadAllText(filepath);
-        //        var buf = new MemoryStream(Encoding.UTF8.GetBytes(key));
-        //        var privateKeyFile = new PrivateKeyFile(filepath,"pazaak");
-
-
-        //        ConnectionInfo connectionInfo = new ConnectionInfo("ghenterpriseapp.westeurope.cloudapp.azure.com", 22 , "jari", 
-        //            new AuthenticationMethod[] {
-        //                new PrivateKeyAuthenticationMethod("jari", new []
-        //                {
-        //                    new PrivateKeyFile(filepath, "pazaak")
-        //                })
-        //            }
-        //        );
-        //        connectionInfo.Timeout = TimeSpan.FromSeconds(30);
-        //        using (SshClient client = new SshClient(connectionInfo))
-        //        {
-        //            client.Connect();
-        //            ForwardedPortLocal port = new ForwardedPortLocal("127.0.0.1",22, "13.94.138.165", 3306);
-               
-        //            client.AddForwardedPort(port);
-        //            port.Start();
-                   
-        //            using (MySqlConnection conn = new MySqlConnection("server=127.0.0.1;port=22;database=Ghenterprise;Uid=jari;Pwd=pazaak;"))
-        //            {
-        //                conn.Open();
-
-        //                var insertVar = " ( ";
-        //                var insertVal = " ( ";
-
-        //                foreach (var prop in user.GetType().GetProperties())
-        //                {
-        //                    System.Diagnostics.Debug.WriteLine(prop.Name + " + " + prop.GetValue(user, null));
-        //                    insertVar += prop.Name + ((user.GetType().GetProperties().Last().Name == prop.Name)? " ) ": " , ");
-        //                    insertVal += "'" + prop.GetValue(user, null) + "'" + ((user.GetType().GetProperties().Last().Name == prop.Name) ? " ) " : " , ");
-        //                }
-        //                System.Diagnostics.Debug.WriteLine(insertVar + " -- " + insertVal);
-        //                System.Diagnostics.Debug.WriteLine(user.GetType().Name);
-
-        //                var query = String.Format("INSERT INTO {0} {1} VALUES {2}", user.GetType().Name.ToLower(),  insertVar, insertVal);
-        //                System.Diagnostics.Debug.WriteLine(query);
-        //                query += ";";
-        //                using (MySqlCommand command = new MySqlCommand(query, conn))
-        //                {
-        //                    affectedRows = command.ExecuteNonQuery();
-        //                }
-        //            }
-        //            client.Disconnect();
-        //        }
-                
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-        //        return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-        //    }
-        //    return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
+            return Request.CreateResponse(HttpStatusCode.OK, user);
         }
 
         [Route("api/User/check-email")]
@@ -155,22 +99,7 @@ namespace Ghenterprise_Backend.Controllers
                 user = userRepo.login(user);
                 if (user.password == "Password valid")
                 {
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var key = Encoding.ASCII.GetBytes("FAKE");
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(new Claim[]
-                        {
-                            new Claim(ClaimTypes.Name, user.id.ToString())
-                        }),
-                        Expires = DateTime.UtcNow.AddDays(7),
-                        SigningCredentials = new SigningCredentials(
-                            new SymmetricSecurityKey(key),
-                            SecurityAlgorithms.HmacSha256Signature
-                            )
-                    };
-                    var token = tokenHandler.CreateToken(tokenDescriptor);
-                    user.Token = tokenHandler.WriteToken(token);
+                    user.Token = GetToken(user.id);
                 }
             }
             catch (Exception ex)

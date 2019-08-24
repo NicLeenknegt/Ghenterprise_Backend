@@ -12,7 +12,7 @@ using MySql.Data.MySqlClient;
 
 namespace Ghenterprise_Backend.Repositories
 {
-    public class UserRepository
+    public class UserRepository:BaseRepository
     {
         public string connString { get; set; }
         public SSH ssh { get; set; }
@@ -23,15 +23,18 @@ namespace Ghenterprise_Backend.Repositories
             ssh = new SSH();
         }
 
-        public int registerUser(RegistrationUser user)
+        public int registerUser(User user)
         {
-            return ssh.executeQuery<int>(() => {
+            return ssh.executeQuery(() => {
                 int rowsAffected = 0;
 
                 using (MySqlConnection conn = new MySqlConnection(connString))
                 {
                     conn.Open();
-                    var query = String.Format("INSERT INTO user (firstname, lastname, email, password) VALUES ('" + user.firstname + "', '" + user.lastname + "' , '" + user.email + "', '" + user.password + "')");
+                    var query = InsertQuery(new User[]
+                    {
+                        user
+                    });
 
                     using (MySqlCommand command = new MySqlCommand(query, conn))
                     {
@@ -88,7 +91,7 @@ namespace Ghenterprise_Backend.Repositories
                             {
                                 while (reader.Read() == true)
                                 {
-                                    user.id = reader.GetInt16(0);
+                                    user.id = reader.GetString(0);
                                     user.password = (reader.GetString(1) == user.password) ? "Password valid" : "Password invalid";
                                 }
                             } else

@@ -29,11 +29,11 @@ namespace Ghenterprise_Backend.Models
 
     public class User
     {
-        public int id { get; set; }
-        public String firstname { get; set; }
-        public String lastname { get; set; }
-        public String email { get; set; }
-        public String password { get; set; }
+        public string id { get; set; }
+        public string firstname { get; set; }
+        public string lastname { get; set; }
+        public string email { get; set; }
+        public string password { get; set; }
         public string Token { get; set; }
 
     }

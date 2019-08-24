@@ -1,5 +1,6 @@
 ﻿using Ghenterprise_Backend.Models;
 using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,7 +21,7 @@ namespace Ghenterprise_Backend.Repositories
             Ssh = new SSH();
         }
 
-        public int SaveEnterprise(int UserId, Enterprise enterprise)
+        public int SaveEnterprise(string UserId, Enterprise enterprise)
         {
             return Ssh.executeQuery<int>(() => {
                 int rowsAffected = 0;
@@ -29,43 +30,46 @@ namespace Ghenterprise_Backend.Repositories
                 List<Enterprise_Has_Category> entCats = new List<Enterprise_Has_Category>();
 
                 var query = "BEGIN;";
-                
+                Debug.WriteLine(JsonConvert.SerializeObject(enterprise));
                 //Enterprise creation query
                 query += InsertQuery(new Enterprise[] { enterprise });
-
+                Debug.WriteLine("1");
                 //Enterprise Tag Connection creation
-                if (enterprise.Tags != null || enterprise.Tags.Count != 0)
+                if (enterprise.Tags != null)
                 {
-                    //Insertion of non existing tags
-                    query += InsertQuery(enterprise.Tags.Where((t) => t.Id == null).ToArray());
-
-                    //Insertions of enterprise & tag connections
-                    foreach (var item in enterprise.Tags)
+                    if (enterprise.Tags.Count > 0)
                     {
-                        entTags.Add(new Enterprise_Has_Tag
+                        //Insertion of non existing tags
+                        query += InsertQuery(enterprise.Tags.Where((t) => t.Id == null).ToArray());
+
+                        //Insertions of enterprise & tag connections
+                        foreach (var item in enterprise.Tags)
                         {
-                            Enterprise_ID = enterprise.Id,
-                            Tag_ID = item.Id
-                        });
+                            entTags.Add(new Enterprise_Has_Tag
+                            {
+                                Enterprise_ID = enterprise.Id,
+                                Tag_ID = item.Id
+                            });
+                        }
+
+                        query += InsertQuery<Enterprise_Has_Tag>(entTags.ToArray());
                     }
-
-                    query += InsertQuery<Enterprise_Has_Tag>(entTags.ToArray());
                 }
-
-                if (enterprise.Location.City.Id == null)
+                Debug.WriteLine("2");
+                if (enterprise.Location.City.Id == null && enterprise.Location.City.Name != null)
                 {
                     query += InsertQuery(new City[] { enterprise.Location.City } );
                     Debug.WriteLine(enterprise.Location.City.Id);
                 }
-
-                if (enterprise.Location.Street.Id == null)
+                Debug.WriteLine("3");
+                if (enterprise.Location.Street.Id == null && enterprise.Location.Street.Name != null)
                 {
                     query += InsertQuery(new Street[] { enterprise.Location.Street });
                     Debug.WriteLine(enterprise.Location.Street.Id);
                 }
-
+                Debug.WriteLine("4");
                 query += InsertQuery(new Location[] { enterprise.Location });
-
+                Debug.WriteLine("5");
                 query += InsertQuery(new Enterprise_Has_Location[]
                 {
                     new Enterprise_Has_Location
@@ -74,24 +78,29 @@ namespace Ghenterprise_Backend.Repositories
                         Location_ID = enterprise.Location.Id
                     }
                 });
-
+                Debug.WriteLine("6");
                 //enterprise_has_category connection
-                if (enterprise.Categories != null || enterprise.Categories.Count != 0 )
+                if (enterprise.Categories != null)
                 {
-                    query += InsertQuery(enterprise.Categories.Where((t) => t.Id == null).ToArray());
-
-                    foreach (var item in enterprise.Categories)
+                    if (enterprise.Categories.Count != 0)
                     {
-                        entCats.Add(new Enterprise_Has_Category
+                        query += InsertQuery(enterprise.Categories.Where((t) => t.Id == null).ToArray());
+
+                        foreach (var item in enterprise.Categories)
                         {
-                            Enterprise_ID = enterprise.Id,
-                            Category_ID = item.Id
-                        });
+                            entCats.Add(new Enterprise_Has_Category
+                            {
+                                Enterprise_ID = enterprise.Id,
+                                Category_ID = item.Id
+                            });
+                        }
+
+                        query += InsertQuery(entCats.ToArray());
                     }
-
-                    query += InsertQuery(entCats.ToArray());
                 }
-
+                Debug.WriteLine("7");
+                Debug.WriteLine(UserId);
+                Debug.WriteLine(enterprise.Id);
                 //user_has_enterprise connection
                 query += InsertQuery(new User_Has_Enterprise[]
                 {
@@ -101,10 +110,10 @@ namespace Ghenterprise_Backend.Repositories
                         Enterprise_ID = enterprise.Id
                     }
                 });
-                
+                Debug.WriteLine("8");
                 query += "COMMIT;";
-
-                using(MySqlConnection conn = new MySqlConnection(ConnString))
+                Debug.WriteLine("9");
+                using (MySqlConnection conn = new MySqlConnection(ConnString))
                 {
                     conn.Open();
                     using (MySqlCommand command = new MySqlCommand(query,conn))
@@ -112,12 +121,12 @@ namespace Ghenterprise_Backend.Repositories
                         rowsAffected = command.ExecuteNonQuery();
                     }
                 }
-
+                Debug.WriteLine("10");
                 return rowsAffected;
             });
         }
 
-        public int SubscribeToEnterprise(int userId, string entId)
+        public int SubscribeToEnterprise(string userId, string entId)
         {
             return ssh.executeQuery(() =>
             {
@@ -233,10 +242,44 @@ namespace Ghenterprise_Backend.Repositories
                 }
             }
 
+            foreach(var ent in entList)
+            {
+                ent.Categories = ent.Categories.GroupBy((c) => c.Id).Select((ca) => ca.First()).ToList();
+                ent.Tags = ent.Tags.GroupBy((c) => c.Id).Select((ca) => ca.First()).ToList();
+            }
+
             return entList;
         }
 
-        public List<Enterprise> GetEnterprisesByOwner(int ownerID)
+        public List<Enterprise> GetAllEnterprise()
+        {
+            return ssh.executeQuery(() =>
+            {
+                var query = "SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name " +
+                    "FROM Ghenterprise.enterprise e " +
+                    "left outer join Ghenterprise.enterprise_has_tag eht " +
+                    "on eht.enterprise_id = e.id " +
+                    "left outer join Ghenterprise.tag t " +
+                    "on eht.tag_id = t.id " +
+                    "left outer join Ghenterprise.enterprise_has_category ehc " +
+                    "on ehc.enterprise_id = e.id " +
+                    "left outer join Ghenterprise.category c " +
+                    "on ehc.category_id = c.id " +
+                    "left outer join Ghenterprise.enterprise_has_location ehl " +
+                    "on ehl.enterprise_id = e.id " +
+                    "left outer join Ghenterprise.location l " +
+                    "on ehl.location_id = l.id " +
+                    "left outer join Ghenterprise.street s " +
+                    "on l.street_id = s.id " +
+                    "left outer join Ghenterprise.city cit " +
+                    "on l.city_id = cit.id ";
+
+                return MysqlReaderToEterprise(query);
+            });
+
+        }
+
+        public List<Enterprise> GetEnterprisesByOwner(string ownerID)
         {
             return ssh.executeQuery(() =>
             {
@@ -260,7 +303,7 @@ namespace Ghenterprise_Backend.Repositories
                     "on l.city_id = cit.id " +
                     "left outer join Ghenterprise.user_has_enterprise uhe " +
                     "on uhe.enterprise_id = e.id " +
-                    "where uhe.user_id = {0};",
+                    "where uhe.user_id = '{0}';",
                     ownerID);
 
                 return MysqlReaderToEterprise(query);
@@ -268,7 +311,7 @@ namespace Ghenterprise_Backend.Repositories
             
         }
 
-        public List<Enterprise> GetSubsciptionEnterprise(int userID)
+        public List<Enterprise> GetSubsciptionEnterprise(string userID)
         {
             return ssh.executeQuery(() =>
             {
@@ -292,7 +335,7 @@ namespace Ghenterprise_Backend.Repositories
                     "on l.city_id = cit.id " +
                     "left outer join Ghenterprise.user_has_subscription uhs " +
                     "on uhs.enterprise_id = e.id " +
-                    "where uhs.user_id = {0};",
+                    "where uhs.user_id = '{0}';",
                     userID);
 
 
@@ -489,7 +532,7 @@ namespace Ghenterprise_Backend.Repositories
             });
         }
 
-        public int DeleteSubscriptionByEnterpriseId(int user_id, string enterprise_Id)
+        public int DeleteSubscriptionByEnterpriseId(string user_id, string enterprise_Id)
         {
             return ssh.executeQuery(() =>
             {
@@ -517,7 +560,7 @@ namespace Ghenterprise_Backend.Repositories
             });
         }
 
-        public int DeleteAllSubscriptions(int user_id)
+        public int DeleteAllSubscriptions(string user_id)
         {
             return ssh.executeQuery(() =>
             {

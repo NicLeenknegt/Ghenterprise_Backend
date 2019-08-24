@@ -21,6 +21,11 @@ namespace Ghenterprise_Backend.Controllers
         [HttpPost]
         public HttpResponseMessage InsertEvent([FromBody] Event backendEvent)
         {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
+            }
+
             int affectedRows = 0;
             try
             {
@@ -36,6 +41,11 @@ namespace Ghenterprise_Backend.Controllers
         [HttpPut]
         public HttpResponseMessage UpdateEvent([FromBody] Event backendEvent)
         {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
+            }
+
             int affectedRows = 0;
             try
             {

@@ -36,6 +36,11 @@ namespace Ghenterprise_Backend.Controllers
         [HttpPost]
         public HttpResponseMessage SetUserNoticationsAsSeen([FromBody] List<User_Has_Notification> uhnList)
         {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
+            }
+
             int affectedRows = 0;
             try
             {
