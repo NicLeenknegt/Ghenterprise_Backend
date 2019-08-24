@@ -121,6 +121,47 @@ namespace Ghenterprise_Backend.Repositories
             });
         }
 
+        public List<Promotion> GetAllPromotions()
+        {
+            return ssh.executeQuery(() =>
+            {
+                var query = string.Format("SELECT p.id, p.description, p.start_date, p.end_date, ehp.id, ehp.name, ehp.description " +
+                    "FROM Ghenterprise.promotion p " +
+                    "LEFT OUTER JOIN Ghenterprise.enterprise_has_promotion ehp " +
+                    "ON p.id = ehp.promotion_id " );
+                List<Promotion> promList = new List<Promotion>();
+
+                using (MySqlConnection conn = new MySqlConnection(ConnString))
+                {
+                    conn.Open();
+                    using (MySqlCommand command = new MySqlCommand(query, conn))
+                    {
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read() == true)
+                            {
+                                promList.Add(new Promotion
+                                {
+                                    Id = reader.GetString(0),
+                                    Description = reader.GetString(1),
+                                    Start_Date = reader.GetString(2),
+                                    End_Date = reader.GetString(3),
+                                    Enterprise = new Enterprise
+                                    {
+                                        Id = reader.GetString(4),
+                                        Name = reader.GetString(5),
+                                        Description = reader.GetString(6)
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+
+                return promList;
+            });
+        }
+
         public int DeletePromotionById(string Promotion_id)
         {
             return ssh.executeQuery(() =>

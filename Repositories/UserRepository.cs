@@ -76,7 +76,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() => 
             {
-                var query = String.Format("SELECT id, password FROM user WHERE email = '{0}' LIMIT 1;", user.email);
+                var query = String.Format("SELECT id, password, firstname, lastname FROM user WHERE email = '{0}' LIMIT 1;", user.email);
                 String response = "Password invalid";
 
                 using(MySqlConnection conn = new MySqlConnection(connString))
@@ -93,6 +93,8 @@ namespace Ghenterprise_Backend.Repositories
                                 {
                                     user.id = reader.GetString(0);
                                     user.password = (reader.GetString(1) == user.password) ? "Password valid" : "Password invalid";
+                                    user.firstname = reader.GetString(2);
+                                    user.lastname = reader.GetString(3);
                                 }
                             } else
                             {

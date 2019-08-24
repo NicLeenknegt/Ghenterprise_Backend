@@ -85,11 +85,6 @@ namespace Ghenterprise_Backend.Controllers
         [HttpPost]
         public HttpResponseMessage login([FromBody] User user)
         {
-            if(!ModelState.IsValid)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
-            }
-
             Response res = new Response
             {
                 message = "Password invalid"
