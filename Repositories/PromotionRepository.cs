@@ -125,10 +125,12 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = string.Format("SELECT p.id, p.description, p.start_date, p.end_date, ehp.id, ehp.name, ehp.description " +
+                var query = string.Format("SELECT p.id, p.description, p.start_date, p.end_date, e.id, e.name, e.description " +
                     "FROM Ghenterprise.promotion p " +
                     "LEFT OUTER JOIN Ghenterprise.enterprise_has_promotion ehp " +
-                    "ON p.id = ehp.promotion_id " );
+                    "ON p.id = ehp.promotion_id " +
+                    "LEFT OUTER JOIN Ghenterprise.enterprise e " +
+                    "ON e.id = ehp.enterprise_id ");
                 List<Promotion> promList = new List<Promotion>();
 
                 using (MySqlConnection conn = new MySqlConnection(ConnString))

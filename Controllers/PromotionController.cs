@@ -89,7 +89,7 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpGet]
-        public HttpResponseMessage GetAllEvents()
+        public HttpResponseMessage GetAllPromotions()
         {
             List<Promotion> promList = new List<Promotion>();
             try
