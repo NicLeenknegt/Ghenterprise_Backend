@@ -9,7 +9,7 @@ using System.Web.Http;
 
 namespace Ghenterprise_Backend.Controllers
 {
-    public class PromotionController : ApiController
+    public class PromotionController : BaseController
     {
         public PromotionRepository PromRepo { get; set; }
 
@@ -54,6 +54,21 @@ namespace Ghenterprise_Backend.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, affectedRows);
         }
 
+        [HttpGet]
+        public HttpResponseMessage GetPromotionById([FromUri] string Promotion_ID)
+        {
+            Promotion prom = new Promotion();
+            try
+            {
+                prom = PromRepo.GetPromotioById(Promotion_ID);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, prom);
+        }
+
         [HttpDelete]
         public HttpResponseMessage DeletePromotion([FromUri] string Promotion_ID)
         {
@@ -91,6 +106,23 @@ namespace Ghenterprise_Backend.Controllers
             try
             {
                 promList = PromRepo.GetAllPromotions();
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, promList);
+        }
+
+        [HttpGet]
+        [Route("api/Promotion/Owner")]
+        public HttpResponseMessage GetAllPromotionsOfOwner()
+        {
+            List<Promotion> promList = new List<Promotion>();
+            try
+            {
+                string Owner_ID = ValidateToken();
+                promList = PromRepo.GetAllPromotionsByOwner(Owner_ID);
             }
             catch (Exception ex)
             {

@@ -314,7 +314,7 @@ namespace Ghenterprise_Backend.Repositories
                     "on l.city_id = cit.id " +
                     "left outer join Ghenterprise.user_has_enterprise uhe " +
                     "on uhe.enterprise_id = e.id " +
-                    "left outer join Ghenterprise.opening_hours oh" +
+                    "left outer join Ghenterprise.opening_hours oh " +
                     "on oh.enterprise_id = e.id " +
                     "where uhe.user_id = '{0}';",
                     ownerID);

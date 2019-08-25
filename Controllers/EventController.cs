@@ -9,7 +9,7 @@ using System.Web.Http;
 
 namespace Ghenterprise_Backend.Controllers
 {
-    public class EventController : ApiController
+    public class EventController : BaseController
     {
         private EventRepository EventRepo { get; set; }
 
@@ -118,6 +118,21 @@ namespace Ghenterprise_Backend.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, eventList);
         }
 
-
+        [HttpGet]
+        [Route("api/Event/Owner")]
+        public HttpResponseMessage GetEventByOwner()
+        {
+            List<Event> eventList = new List<Event>();
+            try
+            {
+                string owner_id = ValidateToken();
+                eventList = EventRepo.GetEventByOwnerId(owner_id);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, eventList);
+        }
     }
 }
