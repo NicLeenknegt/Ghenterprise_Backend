@@ -90,7 +90,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = string.Format("SELECT p.id, p.description, p.start_date, p.end_date " +
+                var query = string.Format("SELECT p.id, p.name, p.description, p.start_date, p.end_date " +
                     "FROM Ghenterprise.promotion p " +
                     "LEFT OUTER JOIN Ghenterprise.enterprise_has_promotion ehp " +
                     "ON p.id = ehp.promotion_id " +
@@ -110,9 +110,10 @@ namespace Ghenterprise_Backend.Repositories
                                 promList.Add(new Promotion
                                 {
                                     Id = reader.GetString(0),
-                                    Description = reader.GetString(1),
-                                    Start_Date = reader.GetString(2),
-                                    End_Date = reader.GetString(3)
+                                    Name = reader.GetString(1),
+                                    Description = reader.GetString(2),
+                                    Start_Date = reader.GetString(3),
+                                    End_Date = reader.GetString(4)
                                 });
                             }
                         }
@@ -127,7 +128,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = string.Format("SELECT p.id, p.description, p.start_date, p.end_date, e.id, e.name, e.description " +
+                var query = string.Format("SELECT p.id, p.name, p.description, p.start_date, p.end_date, e.id, e.name, e.description " +
                     "FROM Ghenterprise.promotion p " +
                     "LEFT OUTER JOIN Ghenterprise.enterprise_has_promotion ehp " +
                     "ON p.id = ehp.promotion_id " +
@@ -147,14 +148,15 @@ namespace Ghenterprise_Backend.Repositories
                                 promList.Add(new Promotion
                                 {
                                     Id = reader.GetString(0),
-                                    Description = reader.GetString(1),
-                                    Start_Date = reader.GetString(2),
-                                    End_Date = reader.GetString(3),
+                                    Name = reader.GetString(1),
+                                    Description = reader.GetString(2),
+                                    Start_Date = reader.GetString(3),
+                                    End_Date = reader.GetString(4),
                                     Enterprise = new Enterprise
                                     {
-                                        Id = reader.GetString(4),
-                                        Name = reader.GetString(5),
-                                        Description = reader.GetString(6)
+                                        Id = reader.GetString(5),
+                                        Name = reader.GetString(6),
+                                        Description = reader.GetString(7)
                                     }
                                 });
                             }
