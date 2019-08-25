@@ -63,6 +63,7 @@ namespace Ghenterprise_Backend.Repositories
                         query += InsertQuery(enterprise.Opening_Hours.ToArray());
                     }
                 }
+
                 Debug.WriteLine("2");
                 if (enterprise.Location.City.Id == null && enterprise.Location.City.Name != null)
                 {
@@ -263,7 +264,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = "SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name " +
+                var query = "SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.morning_start, oh.morning_end, oh.afternoon_start, oh.afternoon_end " +
                     "FROM Ghenterprise.enterprise e " +
                     "left outer join Ghenterprise.enterprise_has_tag eht " +
                     "on eht.enterprise_id = e.id " +
@@ -280,7 +281,9 @@ namespace Ghenterprise_Backend.Repositories
                     "left outer join Ghenterprise.street s " +
                     "on l.street_id = s.id " +
                     "left outer join Ghenterprise.city cit " +
-                    "on l.city_id = cit.id ";
+                    "on l.city_id = cit.id " +
+                    "left outer join Ghenterprise.opening_hours oh " +
+                    "on oh.enterprise_id = e.id";
 
                 return MysqlReaderToEterprise(query);
             });
@@ -291,7 +294,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name " +
+                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.morning_start, oh.morning_end, oh.afternoon_start, oh.afternoon_end  " +
                     "FROM Ghenterprise.enterprise e " +
                     "left outer join Ghenterprise.enterprise_has_tag eht " +
                     "on eht.enterprise_id = e.id " +
@@ -311,6 +314,8 @@ namespace Ghenterprise_Backend.Repositories
                     "on l.city_id = cit.id " +
                     "left outer join Ghenterprise.user_has_enterprise uhe " +
                     "on uhe.enterprise_id = e.id " +
+                    "left outer join Ghenterprise.opening_hours oh" +
+                    "on oh.enterprise_id = e.id " +
                     "where uhe.user_id = '{0}';",
                     ownerID);
 
@@ -323,7 +328,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name " +
+                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.morning_start, oh.morning_end, oh.afternoon_start, oh.afternoon_end  " +
                     "FROM Ghenterprise.enterprise e " +
                     "left outer join Ghenterprise.enterprise_has_tag eht " +
                     "on eht.enterprise_id = e.id " +
@@ -343,6 +348,8 @@ namespace Ghenterprise_Backend.Repositories
                     "on l.city_id = cit.id " +
                     "left outer join Ghenterprise.user_has_enterprise uhe " +
                     "on uhe.enterprise_id = e.id " +
+                    "left outer join Ghenterprise.opening_hours oh " +
+                    "on oh.enterprise_id = e.id " +
                     "where e.id = '{0}';",
                     ent_id);
 
@@ -355,7 +362,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name " +
+                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.morning_start, oh.morning_end, oh.afternoon_start, oh.afternoon_end  " +
                     "FROM Ghenterprise.enterprise e " +
                     "left outer join Ghenterprise.enterprise_has_tag eht " +
                     "on eht.enterprise_id = e.id " +
@@ -375,6 +382,8 @@ namespace Ghenterprise_Backend.Repositories
                     "on l.city_id = cit.id " +
                     "left outer join Ghenterprise.user_has_subscription uhs " +
                     "on uhs.enterprise_id = e.id " +
+                    "left outer join Ghenterprise.opening_hours oh " +
+                    "on oh.enterprise_id = e.id " +
                     "where uhs.user_id = '{0}';",
                     userID);
 
@@ -435,38 +444,51 @@ namespace Ghenterprise_Backend.Repositories
                     }
                 }
 
-                if (enterprise.Tags != null && enterprise.Tags.Count > 0)
-                {
-                    Tag[] nullIdTags = enterprise.Tags.Where(t => t.Id == null).ToArray();
-                    Tag[] idTags = enterprise.Tags.Where(t => t.Id != null).ToArray();
 
-                    query += DeleteQuery(new Enterprise_Has_Tag[]
-                         {
+                if (enterprise.Opening_Hours != null)
+                {
+                    if (enterprise.Opening_Hours.Count > 0)
+                    {
+                        query += UpdateQuery(enterprise.Opening_Hours.ToArray());
+                    }
+                }
+
+                if (enterprise.Tags != null)
+                {
+                    if (enterprise.Tags.Count > 0)
+                    {
+                        Tag[] nullIdTags = enterprise.Tags.Where(t => t.Id == null).ToArray();
+                        Tag[] idTags = enterprise.Tags.Where(t => t.Id != null).ToArray();
+
+                        query += DeleteQuery(new Enterprise_Has_Tag[]
+                             {
                             new Enterprise_Has_Tag
                             {
                                 Enterprise_ID = enterprise.Id,
                                 Tag_ID = null
                             }
-                         }, new string[] { "enterprise_id" });
+                             }, new string[] { "enterprise_id" });
 
-                    if (nullIdTags != null && nullIdTags.Length > 0)
-                    {
-                        query += InsertQuery(nullIdTags);
+                        if (nullIdTags != null && nullIdTags.Length > 0)
+                        {
+                            query += InsertQuery(nullIdTags);
+                        }
+                        query += InsertQuery(enterprise.Tags.Select(
+                                    n =>
+                                        new Enterprise_Has_Tag
+                                        {
+                                            Enterprise_ID = enterprise.Id,
+                                            Tag_ID = n.Id
+                                        }
+                                ).ToArray());
                     }
-                    query += InsertQuery(enterprise.Tags.Select(
-                                n =>
-                                    new Enterprise_Has_Tag
-                                    {
-                                        Enterprise_ID = enterprise.Id,
-                                        Tag_ID = n.Id
-                                    }
-                            ).ToArray());
                 }
 
-                if (enterprise.Categories != null && enterprise.Categories.Count > 0)
+                if (enterprise.Categories != null )
                 {
-
-                    query += DeleteQuery(new Enterprise_Has_Category[]
+                    if (enterprise.Categories.Count > 0)
+                    {
+                        query += DeleteQuery(new Enterprise_Has_Category[]
                          {
                             new Enterprise_Has_Category
                             {
@@ -475,13 +497,14 @@ namespace Ghenterprise_Backend.Repositories
                             }
                          }, new string[] { "enterprise_id" });
 
-                    query += InsertQuery(enterprise.Categories.Select( c =>
-                        new Enterprise_Has_Category
-                        {
-                            Enterprise_ID = enterprise.Id,
-                            Category_ID = c.Id
-                        }
-                    ).ToArray());
+                        query += InsertQuery(enterprise.Categories.Select(c =>
+                           new Enterprise_Has_Category
+                           {
+                               Enterprise_ID = enterprise.Id,
+                               Category_ID = c.Id
+                           }
+                        ).ToArray());
+                    }
                 }
 
                 query += "COMMIT;";

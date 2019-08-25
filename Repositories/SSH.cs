@@ -48,6 +48,8 @@ namespace Ghenterprise_Backend.Repositories
 
                     t = executeMySqlQuery();
 
+                    port.Stop();
+
                     client.Disconnect();
                 }
 

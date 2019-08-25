@@ -60,9 +60,9 @@ namespace Ghenterprise_Backend.Controllers
 
         [Route("api/User/check-email")]
         [HttpGet]
-        public HttpResponseMessage checkEmail([FromBody] User user)
+        public HttpResponseMessage checkEmail([FromUri] string email)
         {
-            
+            User user = new User();
             try
             {
                 user.Token = (userRepo.checkEmail(user.email)) ? "email exists" : "email doesn't exist";

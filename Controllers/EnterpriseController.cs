@@ -128,11 +128,6 @@ namespace Ghenterprise_Backend.Controllers
         [HttpPut]
         public HttpResponseMessage UpdateEnterprise([FromBody] Enterprise enterprise)
         {
-            if (!ModelState.IsValid)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
-            }
-
             int affectedRows = 0;
             try
             {
@@ -147,13 +142,13 @@ namespace Ghenterprise_Backend.Controllers
         }
         
         [HttpDelete]
-        public HttpResponseMessage DeleteEnterprise([FromUri] string enterpriseID)
+        public HttpResponseMessage DeleteEnterprise([FromUri] string enterprise_id)
         {
             int affectedRows = 0;
             try
             {
                 ValidateToken();
-                affectedRows = EnterRepo.DeleteEnterpise(enterpriseID);
+                affectedRows = EnterRepo.DeleteEnterpise(enterprise_id);
             }
             catch (Exception ex)
             {
@@ -163,13 +158,13 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpDelete]
-        public HttpResponseMessage DeleteSubscriptionByEnterpriseId( [FromUri] string enterpriseID)
+        public HttpResponseMessage DeleteSubscriptionByEnterpriseId( [FromUri] string subscription_id)
         {
             int affectedRows = 0;
             try
             {
                 string User_ID = ValidateToken();
-                affectedRows = EnterRepo.DeleteSubscriptionByEnterpriseId(User_ID, enterpriseID);
+                affectedRows = EnterRepo.DeleteSubscriptionByEnterpriseId(User_ID, subscription_id);
             }
             catch (Exception ex)
             {
