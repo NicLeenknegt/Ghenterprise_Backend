@@ -89,6 +89,21 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpGet]
+        public HttpResponseMessage GetEventById([FromUri] string Event_ID)
+        {
+            Event backendEvent = new Event();
+            try
+            {
+                backendEvent = EventRepo.GetEventById(Event_ID);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, backendEvent);
+        }
+
+        [HttpGet]
         public HttpResponseMessage GetAllEvents()
         {
             List<Event> eventList = new List<Event>();
@@ -102,5 +117,7 @@ namespace Ghenterprise_Backend.Controllers
             }
             return Request.CreateResponse(HttpStatusCode.OK, eventList);
         }
+
+
     }
 }

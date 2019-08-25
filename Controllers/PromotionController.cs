@@ -21,11 +21,7 @@ namespace Ghenterprise_Backend.Controllers
         [HttpPost]
         public HttpResponseMessage InsertPromotion([FromBody] Promotion prom)
         {
-            if (!ModelState.IsValid)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Modelstate invalid");
-            }
-
+           
             int affectedRows = 0;
             try
             {
