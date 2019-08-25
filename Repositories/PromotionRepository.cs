@@ -47,6 +47,8 @@ namespace Ghenterprise_Backend.Repositories
                     }
                 });
 
+                query += "COMMIT;";
+
                 using (MySqlConnection conn = new MySqlConnection(ConnString))
                 {
                     conn.Open();
