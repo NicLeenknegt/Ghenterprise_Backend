@@ -182,10 +182,8 @@ namespace Ghenterprise_Backend.Repositories
                     "LEFT OUTER JOIN Ghenterprise.enterprise_has_promotion ehp " +
                     "ON p.id = ehp.promotion_id " +
                     "LEFT OUTER JOIN Ghenterprise.enterprise e " +
-                    "ON e.id = ehp.enterprise_id " +
-                    "Left outer join Ghenterprise.user_has_subscription uhs " +
-                    "on uhs.enterprise_id = e.id" +
-                    "Where uhs.user_id = '{0}'; ",
+                    "ON e.id = ehp.enterprise_id  " +
+                    "where p.id = '{0}';" ,
                     Prom_ID);
                 List<Promotion> promList = new List<Promotion>();
 
@@ -230,8 +228,10 @@ namespace Ghenterprise_Backend.Repositories
                     "LEFT OUTER JOIN Ghenterprise.enterprise_has_promotion ehp " +
                     "ON p.id = ehp.promotion_id " +
                     "LEFT OUTER JOIN Ghenterprise.enterprise e " +
-                    "ON e.id = ehp.enterprise_id " +
-                    "Where p.id = '{0}'; ",
+                    "ON e.id = ehp.enterprise_id " + 
+                    "Left outer join Ghenterprise.user_has_subscription uhs " +
+                    "on uhs.enterprise_id = e.id" +
+                    "Where uhs.user_id = '{0}';",
                     Sub_Id);
                 List<Promotion> promList = new List<Promotion>();
 
