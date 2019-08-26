@@ -10,7 +10,7 @@ using System.Web;
 
 namespace Ghenterprise_Backend.Repositories
 {
-    public class EnterpriseRepository:BaseRepository
+    public class EnterpriseRepository : BaseRepository
     {
         public string ConnString { get; set; }
         public SSH Ssh { get; set; }
@@ -23,7 +23,8 @@ namespace Ghenterprise_Backend.Repositories
 
         public int SaveEnterprise(string UserId, Enterprise enterprise)
         {
-            return Ssh.executeQuery<int>(() => {
+            return Ssh.executeQuery<int>(() =>
+            {
                 int rowsAffected = 0;
                 enterprise.Date_Created = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
                 List<Enterprise_Has_Tag> entTags = new List<Enterprise_Has_Tag>();
@@ -60,7 +61,7 @@ namespace Ghenterprise_Backend.Repositories
                 {
                     if (enterprise.Opening_Hours.Count > 0)
                     {
-                        foreach(var item in enterprise.Opening_Hours)
+                        foreach (var item in enterprise.Opening_Hours)
                         {
                             item.Enterprise_Id = enterprise.Id;
                         }
@@ -71,7 +72,7 @@ namespace Ghenterprise_Backend.Repositories
                 Debug.WriteLine("2");
                 if (enterprise.Location.City.Id == null && enterprise.Location.City.Name != null)
                 {
-                    query += InsertQuery(new City[] { enterprise.Location.City } );
+                    query += InsertQuery(new City[] { enterprise.Location.City });
                     Debug.WriteLine(enterprise.Location.City.Id);
                 }
                 Debug.WriteLine("3");
@@ -129,7 +130,7 @@ namespace Ghenterprise_Backend.Repositories
                 using (MySqlConnection conn = new MySqlConnection(ConnString))
                 {
                     conn.Open();
-                    using (MySqlCommand command = new MySqlCommand(query,conn))
+                    using (MySqlCommand command = new MySqlCommand(query, conn))
                     {
                         rowsAffected = command.ExecuteNonQuery();
                     }
@@ -260,10 +261,10 @@ namespace Ghenterprise_Backend.Repositories
                             {
                                 entList[index].Opening_Hours.Add(new Opening_Hours
                                 {
-                                        Id = reader.GetString(14),
-                                        Day_Of_Week = reader.GetInt16(15),
-                                        Start = reader.GetString(16),
-                                        End = reader.GetString(17)
+                                    Id = reader.GetString(14),
+                                    Day_Of_Week = reader.GetInt16(15),
+                                    Start = reader.GetString(16),
+                                    End = reader.GetString(17)
                                 });
                             }
                         }
@@ -271,7 +272,7 @@ namespace Ghenterprise_Backend.Repositories
                 }
             }
 
-            foreach(var ent in entList)
+            foreach (var ent in entList)
             {
                 ent.Categories = ent.Categories.GroupBy((c) => c.Id).Select((ca) => ca.First()).ToList();
                 ent.Tags = ent.Tags.GroupBy((c) => c.Id).Select((ca) => ca.First()).ToList();
@@ -342,7 +343,7 @@ namespace Ghenterprise_Backend.Repositories
 
                 return MysqlReaderToEterprise(query);
             });
-            
+
         }
 
         public List<Enterprise> GetEnterpriseById(string ent_id)
@@ -423,7 +424,7 @@ namespace Ghenterprise_Backend.Repositories
                 var query = "BEGIN;";
 
                 query += UpdateQuery(new Enterprise[] { enterprise });
-                if (enterprise.Location != null )
+                if (enterprise.Location != null)
                 {
 
                     if (enterprise.Location.Street != null)
@@ -457,7 +458,8 @@ namespace Ghenterprise_Backend.Repositories
                                 Location_ID = enterprise.Location.Id
                             }
                         });
-                    } else
+                    }
+                    else
                     {
                         Debug.WriteLine("9");
 
@@ -470,7 +472,15 @@ namespace Ghenterprise_Backend.Repositories
                 {
                     if (enterprise.Opening_Hours.Count > 0)
                     {
-                        query += UpdateQuery(enterprise.Opening_Hours.ToArray());
+                        query += DeleteQuery(new Opening_Hours[] {
+                        
+                                new Opening_Hours
+                                {
+                                     Enterprise_Id = enterprise.Id
+                                }
+                        
+                             }, new string[] { "enterprise_id" });
+                        query += InsertQuery(enterprise.Opening_Hours.ToArray());
                     }
                 }
 
@@ -505,7 +515,7 @@ namespace Ghenterprise_Backend.Repositories
                     }
                 }
 
-                if (enterprise.Categories != null )
+                if (enterprise.Categories != null)
                 {
                     if (enterprise.Categories.Count > 0)
                     {
@@ -553,7 +563,7 @@ namespace Ghenterprise_Backend.Repositories
 
                 var query = "BEGIN;";
 
-                query += DeleteQuery(new Enterprise_Has_Category[] 
+                query += DeleteQuery(new Enterprise_Has_Category[]
                 {
                     new Enterprise_Has_Category
                     {
