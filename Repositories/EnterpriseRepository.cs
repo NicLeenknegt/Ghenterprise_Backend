@@ -201,6 +201,11 @@ namespace Ghenterprise_Backend.Repositories
                                 entList[index].Categories = new List<Category>();
                             }
 
+                            if (entList[index].Opening_Hours == null)
+                            {
+                                entList[index].Opening_Hours = new List<Opening_Hours>();
+                            }
+
 
                             if (!reader.IsDBNull(4) && !reader.IsDBNull(5))
                             {
@@ -306,7 +311,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.start,  oh.end  " +
+                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.start, oh.end  " +
                     "FROM Ghenterprise.enterprise e " +
                     "left outer join Ghenterprise.enterprise_has_tag eht " +
                     "on eht.enterprise_id = e.id " +
