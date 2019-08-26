@@ -246,6 +246,17 @@ namespace Ghenterprise_Backend.Repositories
                                     Name = reader.GetString(13)
                                 };
                             }
+
+                            if (!reader.IsDBNull(14) && !reader.IsDBNull(15) && !reader.IsDBNull(16) && !reader.IsDBNull(17))
+                            {
+                                entList[index].Opening_Hours.Add(new Opening_Hours
+                                {
+                                        Id = reader.GetString(14),
+                                        Day_Of_Week = reader.GetInt16(15),
+                                        Start = reader.GetString(16),
+                                        End = reader.GetString(17)
+                                });
+                            }
                         }
                     }
                 }
@@ -255,6 +266,7 @@ namespace Ghenterprise_Backend.Repositories
             {
                 ent.Categories = ent.Categories.GroupBy((c) => c.Id).Select((ca) => ca.First()).ToList();
                 ent.Tags = ent.Tags.GroupBy((c) => c.Id).Select((ca) => ca.First()).ToList();
+                ent.Opening_Hours = ent.Opening_Hours.GroupBy((c) => c.Id).Select((ca) => ca.First()).ToList();
             }
 
             return entList;
@@ -264,7 +276,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = "SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.morning_start, oh.morning_end, oh.afternoon_start, oh.afternoon_end " +
+                var query = "SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.start, oh.end " +
                     "FROM Ghenterprise.enterprise e " +
                     "left outer join Ghenterprise.enterprise_has_tag eht " +
                     "on eht.enterprise_id = e.id " +
@@ -294,7 +306,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.morning_start, oh.morning_end, oh.afternoon_start, oh.afternoon_end  " +
+                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.start, , oh.end  " +
                     "FROM Ghenterprise.enterprise e " +
                     "left outer join Ghenterprise.enterprise_has_tag eht " +
                     "on eht.enterprise_id = e.id " +
@@ -328,7 +340,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.morning_start, oh.morning_end, oh.afternoon_start, oh.afternoon_end  " +
+                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.start, oh.end  " +
                     "FROM Ghenterprise.enterprise e " +
                     "left outer join Ghenterprise.enterprise_has_tag eht " +
                     "on eht.enterprise_id = e.id " +
@@ -362,7 +374,7 @@ namespace Ghenterprise_Backend.Repositories
         {
             return ssh.executeQuery(() =>
             {
-                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, oh.morning_start, oh.morning_end, oh.afternoon_start, oh.afternoon_end  " +
+                var query = String.Format("SELECT  e.id, e.name, e.description, e.date_created, t.id, t.name, c.id, c.name, l.id, l.street_number, s.id, s.name, cit.id, cit.name, oh.id, oh.day_of_week, , oh.start, oh.end   " +
                     "FROM Ghenterprise.enterprise e " +
                     "left outer join Ghenterprise.enterprise_has_tag eht " +
                     "on eht.enterprise_id = e.id " +
