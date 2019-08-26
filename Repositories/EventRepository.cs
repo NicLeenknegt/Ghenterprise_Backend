@@ -213,7 +213,7 @@ namespace Ghenterprise_Backend.Repositories
                         "on l.street_id = s.id " +
                         "Left outer join Ghenterprise.user_has_subscription uhs " +
                         "on uhs.enterprise_id = ent.id " +
-                        "where uhe.user_id = '{0}';",
+                        "where uhs.user_id = '{0}';",
                         User_ID);
 
                 DataTable table = new DataTable();
