@@ -480,6 +480,10 @@ namespace Ghenterprise_Backend.Repositories
                                 }
                         
                              }, new string[] { "enterprise_id" });
+                        foreach (var item in enterprise.Opening_Hours)
+                        {
+                            item.Enterprise_Id = enterprise.Id;
+                        }
                         query += InsertQuery(enterprise.Opening_Hours.ToArray());
                     }
                 }
