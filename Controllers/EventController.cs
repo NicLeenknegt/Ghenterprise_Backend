@@ -106,6 +106,7 @@ namespace Ghenterprise_Backend.Controllers
 
 
         [HttpGet]
+        [Route("api/Event/Subscription")]
         public HttpResponseMessage GetEventById([FromUri] string Event_ID)
         {
             Event backendEvent = new Event();

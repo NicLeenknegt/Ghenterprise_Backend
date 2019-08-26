@@ -185,7 +185,7 @@ namespace Ghenterprise_Backend.Repositories
                     "ON e.id = ehp.enterprise_id " +
                     "Left outer join Ghenterprise.user_has_subscription uhs " +
                     "on uhs.enterprise_id = e.id" +
-                    "Where uhs.id = '{0}'; ",
+                    "Where uhs.user_id = '{0}'; ",
                     Prom_ID);
                 List<Promotion> promList = new List<Promotion>();
 
@@ -221,7 +221,7 @@ namespace Ghenterprise_Backend.Repositories
             });
         }
 
-        public Promotion GetPromotioById(string Prom_ID)
+        public List<Promotion> GetPromotionBySubscription(string Sub_Id)
         {
             return ssh.executeQuery(() =>
             {
@@ -232,7 +232,7 @@ namespace Ghenterprise_Backend.Repositories
                     "LEFT OUTER JOIN Ghenterprise.enterprise e " +
                     "ON e.id = ehp.enterprise_id " +
                     "Where p.id = '{0}'; ",
-                    Prom_ID);
+                    Sub_Id);
                 List<Promotion> promList = new List<Promotion>();
 
                 using (MySqlConnection conn = new MySqlConnection(ConnString))
@@ -263,7 +263,7 @@ namespace Ghenterprise_Backend.Repositories
                     }
                 }
 
-                return promList[0];
+                return promList;
             });
         }
 

@@ -115,6 +115,23 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpGet]
+        [Route("api/Promotion/Subscription")]
+        public HttpResponseMessage GetPromotionBySub()
+        {
+            List<Promotion> promList = new List<Promotion>();
+            try
+            {
+                string subid = ValidateToken();
+                promList = PromRepo.GetPromotionBySubscription(subid);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, promList);
+        }
+
+        [HttpGet]
         [Route("api/Promotion/Owner")]
         public HttpResponseMessage GetAllPromotionsOfOwner()
         {
