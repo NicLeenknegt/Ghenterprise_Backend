@@ -89,6 +89,22 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpGet]
+        public HttpResponseMessage GetSubscriptionEvents([FromUri] string User_ID)
+        {
+            List<Event> eventList = new List<Event>();
+            try
+            {
+                eventList = EventRepo.GeEventsBySubscription(User_ID);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, eventList);
+        }
+
+
+        [HttpGet]
         public HttpResponseMessage GetEventById([FromUri] string Event_ID)
         {
             Event backendEvent = new Event();
