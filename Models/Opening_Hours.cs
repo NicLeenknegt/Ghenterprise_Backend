@@ -11,5 +11,6 @@ namespace Ghenterprise_Backend.Models
         public int Day_Of_Week { get; set; }
         public string Start { get; set; }
         public string End { get; set; }
+        public string Enterprise_Id { get; set; }
     }
 }

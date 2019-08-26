@@ -60,6 +60,10 @@ namespace Ghenterprise_Backend.Repositories
                 {
                     if (enterprise.Opening_Hours.Count > 0)
                     {
+                        foreach(var item in enterprise.Opening_Hours)
+                        {
+                            item.Enterprise_Id = enterprise.Id;
+                        }
                         query += InsertQuery(enterprise.Opening_Hours.ToArray());
                     }
                 }
