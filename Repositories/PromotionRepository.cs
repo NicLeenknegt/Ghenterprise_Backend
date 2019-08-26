@@ -230,7 +230,7 @@ namespace Ghenterprise_Backend.Repositories
                     "LEFT OUTER JOIN Ghenterprise.enterprise e " +
                     "ON e.id = ehp.enterprise_id " + 
                     "Left outer join Ghenterprise.user_has_subscription uhs " +
-                    "on uhs.enterprise_id = e.id" +
+                    "on uhs.enterprise_id = e.id " +
                     "Where uhs.user_id = '{0}';",
                     Sub_Id);
                 List<Promotion> promList = new List<Promotion>();
