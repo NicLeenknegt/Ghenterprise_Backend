@@ -89,11 +89,12 @@ namespace Ghenterprise_Backend.Controllers
         }
 
         [HttpGet]
-        public HttpResponseMessage GetSubscriptionEvents([FromUri] string User_ID)
+        public HttpResponseMessage GetSubscriptionEvents()
         {
             List<Event> eventList = new List<Event>();
             try
             {
+                string User_ID = ValidateToken();
                 eventList = EventRepo.GeEventsBySubscription(User_ID);
             }
             catch (Exception ex)

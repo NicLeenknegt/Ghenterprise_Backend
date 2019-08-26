@@ -183,6 +183,54 @@ namespace Ghenterprise_Backend.Repositories
                     "ON p.id = ehp.promotion_id " +
                     "LEFT OUTER JOIN Ghenterprise.enterprise e " +
                     "ON e.id = ehp.enterprise_id " +
+                    "Left outer join Ghenterprise.user_has_subscription uhs " +
+                    "on uhs.enterprise_id = e.id" +
+                    "Where uhs.id = '{0}'; ",
+                    Prom_ID);
+                List<Promotion> promList = new List<Promotion>();
+
+                using (MySqlConnection conn = new MySqlConnection(ConnString))
+                {
+                    conn.Open();
+                    using (MySqlCommand command = new MySqlCommand(query, conn))
+                    {
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read() == true)
+                            {
+                                promList.Add(new Promotion
+                                {
+                                    Id = reader.GetString(0),
+                                    Name = reader.GetString(1),
+                                    Description = reader.GetString(2),
+                                    Start_Date = reader.GetString(3),
+                                    End_Date = reader.GetString(4),
+                                    Enterprise = new Enterprise
+                                    {
+                                        Id = reader.GetString(5),
+                                        Name = reader.GetString(6),
+                                        Description = reader.GetString(7)
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+
+                return promList[0];
+            });
+        }
+
+        public Promotion GetPromotioById(string Prom_ID)
+        {
+            return ssh.executeQuery(() =>
+            {
+                var query = string.Format("SELECT p.id, p.name, p.description, p.start_date, p.end_date, e.id, e.name, e.description " +
+                    "FROM Ghenterprise.promotion p " +
+                    "LEFT OUTER JOIN Ghenterprise.enterprise_has_promotion ehp " +
+                    "ON p.id = ehp.promotion_id " +
+                    "LEFT OUTER JOIN Ghenterprise.enterprise e " +
+                    "ON e.id = ehp.enterprise_id " +
                     "Where p.id = '{0}'; ",
                     Prom_ID);
                 List<Promotion> promList = new List<Promotion>();
