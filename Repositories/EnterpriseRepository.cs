@@ -591,6 +591,22 @@ namespace Ghenterprise_Backend.Repositories
                     }
                 }, new string[] { "Enterprise_ID" });
 
+                query += DeleteQuery(new Enterprise_Has_Event[]
+                {
+                    new Enterprise_Has_Event
+                    {
+                        Enterprise_Id = enterprise_Id
+                    }
+                }, new string[] { "Enterprise_ID" });
+
+                query += DeleteQuery(new Enterprise_Has_Promotion[]
+                {
+                    new Enterprise_Has_Promotion
+                    {
+                        Enterprise_Id = enterprise_Id
+                    }
+                }, new string[] { "Enterprise_ID" });
+
                 query += DeleteQuery(new User_Has_Enterprise[]
                 {
                     new User_Has_Enterprise

@@ -67,11 +67,30 @@ namespace Ghenterprise_Backend.Repositories
             return ssh.executeQuery(() =>
             {
                 int rowsAffected = 0;
+                var query = "BEGIN;";
 
-                var query = UpdateQuery(new Promotion[]
+                query += UpdateQuery(new Promotion[]
                 {
                     promotion
                 });
+
+                query += DeleteQuery(new Enterprise_Has_Promotion[]
+                {
+                    new Enterprise_Has_Promotion
+                    {
+                        Promotion_Id = promotion.Id
+                    }
+                }, new string[] { "Promotion_Id" });
+
+                query += InsertQuery(new Enterprise_Has_Promotion[]
+                {
+                    new Enterprise_Has_Promotion
+                    {
+                        Enterprise_Id = promotion.Enterprise.Id,
+                        Promotion_Id = promotion.Id
+                    }
+                });
+                query += "COMMIT;";
 
                 using (MySqlConnection conn = new MySqlConnection(ConnString))
                 {
