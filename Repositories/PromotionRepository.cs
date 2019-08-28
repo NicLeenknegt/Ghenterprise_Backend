@@ -243,8 +243,8 @@ namespace Ghenterprise_Backend.Repositories
             return ssh.executeQuery(() =>
             {
                 var query = string.Format("SELECT p.id, p.name, p.description, p.start_date, p.end_date, e.id, e.name, e.description " +
-                    "FROM Ghenterprise.promotion p " +
-                    "LEFT OUTER JOIN Ghenterprise.enterprise_has_promotion ehp " +
+                    "FROM Ghenterprise.enterprise_has_promotion ehp " +
+                    "LEFT OUTER JOIN Ghenterprise.promotion p  " +
                     "ON p.id = ehp.promotion_id " +
                     "LEFT OUTER JOIN Ghenterprise.enterprise e " +
                     "ON e.id = ehp.enterprise_id " + 
@@ -291,8 +291,8 @@ namespace Ghenterprise_Backend.Repositories
             return ssh.executeQuery(() =>
             {
                 var query = string.Format("SELECT p.id, p.name, p.description, p.start_date, p.end_date, e.id, e.name, e.description " +
-                    "FROM Ghenterprise.promotion p " +
-                    "LEFT OUTER JOIN Ghenterprise.enterprise_has_promotion ehp " +
+                    "FROM Ghenterprise.enterprise_has_promotion ehp " +
+                    "LEFT OUTER JOIN Ghenterprise.promotion p  " +
                     "ON p.id = ehp.promotion_id " +
                     "LEFT OUTER JOIN Ghenterprise.enterprise e " +
                     "ON e.id = ehp.enterprise_id ");
